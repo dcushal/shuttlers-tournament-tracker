@@ -1,13 +1,15 @@
 
 import React, { useState } from 'react';
 import { Tournament, Match } from '../types';
-import { Calendar, ChevronDown, ChevronUp, Award, Share2, Zap, ShieldAlert } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronUp, Award, Share2, Zap, ShieldAlert, Trash2 } from 'lucide-react';
 
 interface Props {
   tournaments: Tournament[];
+  onDeleteTournament?: (id: string) => void;
+  isAdmin?: boolean;
 }
 
-const History: React.FC<Props> = ({ tournaments }) => {
+const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (tournaments.length === 0) {
@@ -32,14 +34,14 @@ const History: React.FC<Props> = ({ tournaments }) => {
     const finalMatch = t.matches.find(m => m.phase === 'finals' && m.isCompleted);
     const championId = finalMatch ? (finalMatch.scoreA > finalMatch.scoreB ? finalMatch.teamAId : finalMatch.teamBId) : null;
     const champion = championId ? t.teams.find(tm => tm.id === championId) : null;
-    
+
     let text = `🏸 *${t.name}* - SESSION REPORT\n`;
     text += `📅 ${new Date(t.date).toLocaleDateString()}\n\n`;
     if (champion) {
       text += `🏆 *CHAMPIONS:* ${champion.player1.name} & ${champion.player2.name}\n`;
     }
     text += `\n*Final Standings:*\n`;
-    
+
     // Simplistic standings for the share text
     const teamWins: Record<string, number> = {};
     t.teams.forEach(tm => teamWins[tm.id] = 0);
@@ -83,7 +85,7 @@ const History: React.FC<Props> = ({ tournaments }) => {
           return (
             <div key={t.id} className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden shadow-xl group">
               <div className="flex">
-                <button 
+                <button
                   onClick={() => setExpandedId(expandedId === t.id ? null : t.id)}
                   className="flex-1 text-left p-6 flex items-center justify-between hover:bg-zinc-800/30 transition-colors"
                 >
@@ -103,18 +105,69 @@ const History: React.FC<Props> = ({ tournaments }) => {
                     {expandedId === t.id ? <ChevronUp size={18} className="text-zinc-500" /> : <ChevronDown size={18} className="text-zinc-500" />}
                   </div>
                 </button>
-                <button 
+                <button
                   onClick={() => shareTournament(t)}
                   className="px-6 border-l border-zinc-800 bg-zinc-950/30 hover:bg-green-500 hover:text-zinc-950 text-zinc-500 transition-all"
                   title="Share Results"
                 >
                   <Share2 size={18} />
                 </button>
+                {isAdmin && (
+                  <button
+                    onClick={() => onDeleteTournament?.(t.id)}
+                    className="px-6 border-l border-zinc-800 bg-zinc-950/30 hover:bg-red-500 hover:text-white text-red-500 transition-all"
+                    title="Delete Tournament"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                )}
               </div>
 
               {expandedId === t.id && (
                 <div className="bg-zinc-950/80 p-6 border-t border-zinc-800 space-y-6 animate-in slide-in-from-top-2 duration-300">
-                  <div className="space-y-4">
+                  <div className="space-y-6">
+                    {/* Final Standings Table */}
+                    <div className="space-y-3">
+                      <h4 className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em] border-b border-zinc-900 pb-1">Final Standings</h4>
+                      <div className="bg-zinc-900/50 border border-zinc-900 rounded-2xl overflow-hidden">
+                        <table className="w-full text-left text-[10px]">
+                          <thead className="bg-zinc-950/50 border-b border-zinc-900">
+                            <tr>
+                              <th className="p-3 text-zinc-600 font-black uppercase">Team</th>
+                              <th className="p-3 text-zinc-600 font-black uppercase text-center">P</th>
+                              <th className="p-3 text-green-500/80 font-black uppercase text-center">W</th>
+                              <th className="p-3 text-red-500/80 font-black uppercase text-center">L</th>
+                              <th className="p-3 text-zinc-400 font-black uppercase text-right">PD</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(() => {
+                              const stats: Record<string, { won: number; lost: number; pd: number; played: number; name: string }> = {};
+                              t.teams.forEach(tm => stats[tm.id] = { won: 0, lost: 0, pd: 0, played: 0, name: `${tm.player1.name}/${tm.player2.name}` });
+                              t.matches.filter(m => m.isCompleted).forEach(m => {
+                                stats[m.teamAId].played++; stats[m.teamBId].played++;
+                                stats[m.teamAId].pd += (m.scoreA - m.scoreB);
+                                stats[m.teamBId].pd += (m.scoreB - m.scoreA);
+                                if (m.scoreA > m.scoreB) { stats[m.teamAId].won++; stats[m.teamBId].lost++; }
+                                else { stats[m.teamBId].won++; stats[m.teamAId].lost++; }
+                              });
+                              return Object.values(stats)
+                                .sort((a, b) => b.won !== a.won ? b.won - a.won : b.pd - a.pd)
+                                .map((s, i) => (
+                                  <tr key={i} className="border-b border-zinc-900/50 last:border-0 hover:bg-zinc-900/50 transition-colors">
+                                    <td className="p-3 font-black text-white uppercase tracking-tight">{s.name}</td>
+                                    <td className="p-3 text-zinc-500 font-bold text-center">{s.played}</td>
+                                    <td className="p-3 text-green-500 font-black text-center">{s.won}</td>
+                                    <td className="p-3 text-red-500/60 font-bold text-center">{s.lost}</td>
+                                    <td className="p-3 text-zinc-400 font-black text-right">{s.pd > 0 ? `+${s.pd}` : s.pd}</td>
+                                  </tr>
+                                ));
+                            })()}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
                     {['finals', 'semi-finals', 'round-robin'].map(phase => {
                       const phaseMatches = t.matches.filter(m => m.phase === phase);
                       if (phaseMatches.length === 0) return null;
@@ -158,7 +211,10 @@ const History: React.FC<Props> = ({ tournaments }) => {
             </div>
           );
         })}
+
       </div>
+
+
     </div>
   );
 };

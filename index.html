@@ -1,20 +1,60 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>8:30 Shuttlers</title>
-    
+
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#10b981">
+    <meta name="theme-color" content="#9ee312">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Shuttlers">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
-    
+    <link rel="apple-touch-icon" href="/logo.jpg">
+    <link rel="icon" type="image/jpeg" href="/logo.jpg">
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        green: {
+                            500: '#9ee312',
+                            400: '#bef264',
+                            600: '#84cc16'
+                        }
+                    },
+                    animation: {
+                        'glow-pulse': 'glow-pulse 3s infinite',
+                        'breathe': 'breathe 4s ease-in-out infinite',
+                        'float': 'float 5s ease-in-out infinite',
+                        'shimmer': 'shimmer 3s infinite linear',
+                    },
+                    keyframes: {
+                        'glow-pulse': {
+                            '0%, 100%': { opacity: 0.8, filter: 'drop-shadow(0 0 5px #9ee312)' },
+                            '50%': { opacity: 1, filter: 'drop-shadow(0 0 20px #9ee312)' },
+                        },
+                        'breathe': {
+                            '0%, 100%': { transform: 'scale(1)', opacity: 0.8 },
+                            '50%': { transform: 'scale(1.05)', opacity: 1 },
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        'shimmer': {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -22,18 +62,21 @@
             background-color: #09090b;
             color: #ecfdf5;
         }
+
         ::-webkit-scrollbar {
             width: 4px;
         }
+
         ::-webkit-scrollbar-track {
             background: #09090b;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #10b981;
             border-radius: 10px;
         }
     </style>
-<script type="importmap">
+    <script type="importmap">
 {
   "imports": {
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
@@ -43,10 +86,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/index.css">
 </head>
+
 <body>
     <div id="root"></div>
-<script type="module" src="/index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

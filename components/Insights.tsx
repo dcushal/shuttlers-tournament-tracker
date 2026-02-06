@@ -1,10 +1,14 @@
 
 import React from 'react';
-import { Tournament } from '../types';
-import { Lightbulb, TrendingUp, Award, Zap, Handshake, Flame, Target, ShieldCheck, Activity, Search } from 'lucide-react';
+import { Tournament, HallOfFameEntry } from '../types';
+import { Lightbulb, TrendingUp, Award, Zap, Handshake, Flame, Target, ShieldCheck, Activity, Search, Crown, Trophy } from 'lucide-react';
+import History from './History';
 
 interface Props {
   tournaments: Tournament[];
+  hallOfFame: HallOfFameEntry[];
+  onDeleteTournament: (id: string) => void;
+  isAdmin: boolean;
 }
 
 const BADMINTON_TIPS = [
@@ -20,12 +24,12 @@ const BADMINTON_TIPS = [
   "A high clear gives you time to recover when you are out of position."
 ];
 
-const Insights: React.FC<Props> = ({ tournaments }) => {
+const Insights: React.FC<Props> = ({ tournaments, hallOfFame, onDeleteTournament, isAdmin }) => {
   const stats = React.useMemo(() => {
-    const playerStats: Record<string, { wins: number, total: number, clutchWins: number, clutchGames: number }> = {};
+    const playerStats: Record<string, { wins: number, total: number }> = {};
     const partnershipStats: Record<string, { wins: number, total: number, p1: string, p2: string, pointDiff: number }> = {};
     const rivalries: Record<string, number> = {};
-    
+
     let totalMatches = 0;
     let highestScore = 0;
 
@@ -34,23 +38,20 @@ const Insights: React.FC<Props> = ({ tournaments }) => {
         totalMatches++;
         const teamA = t.teams.find(tm => tm.id === m.teamAId);
         const teamB = t.teams.find(tm => tm.id === m.teamBId);
-        
+
         if (!teamA || !teamB) return;
 
         const winnerId = m.scoreA > m.scoreB ? m.teamAId : m.teamBId;
-        const isClutch = Math.abs(m.scoreA - m.scoreB) <= 2;
         highestScore = Math.max(highestScore, m.scoreA, m.scoreB);
 
         // Individual Stats
         [teamA, teamB].forEach(team => {
           [team.player1.name, team.player2.name].forEach(name => {
-            if (!playerStats[name]) playerStats[name] = { wins: 0, total: 0, clutchWins: 0, clutchGames: 0 };
+            if (!playerStats[name]) playerStats[name] = { wins: 0, total: 0 };
             playerStats[name].total++;
             if (team.id === winnerId) {
               playerStats[name].wins++;
-              if (isClutch) playerStats[name].clutchWins++;
             }
-            if (isClutch) playerStats[name].clutchGames++;
           });
 
           // Partnership Stats
@@ -60,7 +61,7 @@ const Insights: React.FC<Props> = ({ tournaments }) => {
           }
           partnershipStats[pairKey].total++;
           if (team.id === winnerId) partnershipStats[pairKey].wins++;
-          
+
           const isTeamA = team.id === m.teamAId;
           partnershipStats[pairKey].pointDiff += isTeamA ? (m.scoreA - m.scoreB) : (m.scoreB - m.scoreA);
         });
@@ -82,32 +83,40 @@ const Insights: React.FC<Props> = ({ tournaments }) => {
       .sort((a, b) => b.winRate - a.winRate)
       .slice(0, 3);
 
-    const clutchPlayers = Object.entries(playerStats)
-      .map(([name, s]) => ({ 
-        name, 
-        clutchRate: s.clutchGames > 0 ? (s.clutchWins / s.clutchGames) * 100 : 0, 
-        games: s.clutchGames 
-      }))
-      .filter(p => p.games >= 2)
-      .sort((a, b) => b.clutchRate - a.clutchRate)
-      .slice(0, 3);
 
     const topPartnerships = Object.entries(partnershipStats)
-      .map(([key, s]) => ({ 
-        ...s, 
-        key, 
+      .map(([key, s]) => ({
+        ...s,
+        key,
         winRate: (s.wins / s.total) * 100,
         avgDiff: s.pointDiff / s.total
       }))
-      .filter(p => p.total >= 1) 
+      .filter(p => p.total >= 1)
       .sort((a, b) => b.winRate !== a.winRate ? b.winRate - a.winRate : b.avgDiff - a.avgDiff)
       .slice(0, 5);
 
     const mainRivalry = Object.entries(rivalries)
       .sort((a, b) => b[1] - a[1])[0];
 
-    return { totalMatches, highestScore, topPlayers, topPartnerships, mainRivalry, avgPlayerWinRate, clutchPlayers };
+    return { totalMatches, highestScore, topPlayers, topPartnerships, mainRivalry, avgPlayerWinRate };
   }, [tournaments]);
+
+  const hofLeaders = React.useMemo(() => {
+    const winCounts: Record<string, number> = {};
+    hallOfFame.forEach(entry => {
+      // Split "Player 1 & Player 2" into individual names
+      const players = entry.teamName.split(' & ');
+      players.forEach(name => {
+        const trimmed = name.trim();
+        winCounts[trimmed] = (winCounts[trimmed] || 0) + 1;
+      });
+    });
+
+    return Object.entries(winCounts)
+      .map(([name, wins]) => ({ name, wins }))
+      .sort((a, b) => b.wins - a.wins)
+      .slice(0, 3);
+  }, [hallOfFame]);
 
   const dailyTip = React.useMemo(() => BADMINTON_TIPS[Math.floor(Math.random() * BADMINTON_TIPS.length)], []);
 
@@ -136,40 +145,59 @@ const Insights: React.FC<Props> = ({ tournaments }) => {
         </div>
       </div>
 
-      {/* Clutch Index Card */}
-      <section className="bg-zinc-900 border border-zinc-800 p-8 rounded-[2.5rem] relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-4 opacity-5">
-            <Target size={120} className="text-white" />
+      {/* Hall of Fame Leaders - ADDED HERE */}
+      <section className="bg-gradient-to-br from-yellow-500/10 to-transparent border border-yellow-500/20 p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl shadow-yellow-500/5">
+        <div className="absolute top-0 right-0 p-6 opacity-10">
+          <Crown size={80} className="text-yellow-500" />
         </div>
         <div className="relative z-10 space-y-6">
-            <div className="flex items-center gap-2">
-                <Target size={18} className="text-green-500" />
-                <h3 className="text-zinc-500 font-black uppercase tracking-[0.3em] text-[10px]">Clutch Pressure Index</h3>
-            </div>
-            {stats.clutchPlayers.length > 0 ? (
-                <div className="space-y-4">
-                    {stats.clutchPlayers.map((p, i) => (
-                        <div key={p.name} className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <span className={`text-xs font-black ${i === 0 ? 'text-green-500' : 'text-zinc-600'}`}>#{i+1}</span>
-                                <span className="text-white font-black uppercase tracking-tight text-sm">{p.name}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="text-zinc-500 text-[8px] font-bold uppercase tracking-widest">{p.games} PRESSURE GAMES</span>
-                                <span className="text-green-500 font-black text-base">{Math.round(p.clutchRate)}%</span>
-                            </div>
-                        </div>
-                    ))}
-                    <p className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest text-center pt-2">
-                        Winners of games decided by 2 points or less
-                    </p>
+          <div className="flex items-center gap-2">
+            <Trophy size={18} className="text-yellow-500" />
+            <h3 className="font-black uppercase tracking-[0.3em] text-[10px]">
+              <span className="text-sweep">TOP DOG</span>
+            </h3>
+          </div>
+
+          <div className="space-y-4">
+            {hofLeaders.length > 0 ? (
+              hofLeaders.map((p, i) => (
+                <div key={p.name} className="flex items-center justify-between group">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black ${i === 0 ? 'bg-yellow-500 text-zinc-950 shadow-lg shadow-yellow-500/20' :
+                      i === 1 ? 'bg-zinc-300 text-zinc-950' :
+                        'bg-orange-600/50 text-white'
+                      }`}>
+                      {i === 0 ? <Crown size={20} fill="currentColor" /> : i + 1}
+                    </div>
+                    <div>
+                      <p className="text-white font-black uppercase tracking-tight text-lg">{p.name}</p>
+                      <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-[0.2em]">HOF Inductee</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-1.5 justify-end">
+                      <span className="text-2xl font-black text-white">{p.wins}</span>
+                      <Award size={16} className="text-yellow-500" />
+                    </div>
+                    <p className="text-[8px] text-yellow-500/60 font-black uppercase tracking-widest leading-none">Tournaments</p>
+                  </div>
                 </div>
+              ))
             ) : (
-                <p className="text-zinc-700 text-[10px] font-black uppercase text-center py-4">Insufficient pressure data</p>
+              <p className="text-zinc-700 text-[10px] font-black uppercase text-center py-4">No Hall of Fame records yet</p>
             )}
+          </div>
         </div>
       </section>
 
+      {/* Match History shifted below Top Dog */}
+      <div className="border-t border-zinc-900 pt-8 mt-4">
+        <History
+          tournaments={tournaments}
+          onDeleteTournament={onDeleteTournament}
+          isAdmin={isAdmin}
+        />
+      </div>
       {/* Partnership Synergy Section */}
       <section className="space-y-4">
         <div className="flex items-center justify-between px-2">
@@ -186,20 +214,19 @@ const Insights: React.FC<Props> = ({ tournaments }) => {
         ) : (
           <div className="space-y-3">
             {stats.topPartnerships.map((p, i) => (
-              <div 
-                key={p.key} 
-                className={`group relative overflow-hidden rounded-[2rem] transition-all border ${
-                  i === 0 
-                    ? 'bg-zinc-900 border-green-500/40 p-8 ring-2 ring-green-500/10' 
-                    : 'bg-zinc-900/50 border-zinc-800 p-6 hover:bg-zinc-900 hover:border-zinc-700'
-                }`}
+              <div
+                key={p.key}
+                className={`group relative overflow-hidden rounded-[2rem] transition-all border ${i === 0
+                  ? 'bg-zinc-900 border-green-500/40 p-8 ring-2 ring-green-500/10'
+                  : 'bg-zinc-900/50 border-zinc-800 p-6 hover:bg-zinc-900 hover:border-zinc-700'
+                  }`}
               >
                 {i === 0 && (
                   <div className="absolute top-0 right-0 bg-green-500 text-zinc-950 px-4 py-1.5 rounded-bl-2xl text-[8px] font-black uppercase tracking-widest">
                     Gold Standard Duo
                   </div>
                 )}
-                
+
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-4">
                     <div className="flex -space-x-3">
@@ -211,10 +238,10 @@ const Insights: React.FC<Props> = ({ tournaments }) => {
                         {p.p1} & {p.p2}
                       </h4>
                       <div className="flex gap-3">
-                         <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest">{p.total} SESSIONS</p>
-                         <p className={`text-[8px] font-black uppercase tracking-widest ${p.avgDiff >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                           {p.avgDiff > 0 ? '+' : ''}{p.avgDiff.toFixed(1)} AVG DIFF
-                         </p>
+                        <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest">{p.total} SESSIONS</p>
+                        <p className={`text-[8px] font-black uppercase tracking-widest ${p.avgDiff >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                          {p.avgDiff > 0 ? '+' : ''}{p.avgDiff.toFixed(1)} AVG DIFF
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -228,7 +255,7 @@ const Insights: React.FC<Props> = ({ tournaments }) => {
 
                 <div className="space-y-1.5">
                   <div className="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden border border-zinc-800/50">
-                    <div 
+                    <div
                       className={`h-full rounded-full transition-all duration-1000 ${i === 0 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-zinc-700'}`}
                       style={{ width: `${p.winRate}%` }}
                     ></div>

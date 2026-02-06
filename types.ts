@@ -2,6 +2,9 @@
 export interface Player {
   id: string;
   name: string;
+  points: number;
+  rank: number;
+  previousRank: number;
 }
 
 export interface Team {
@@ -49,4 +52,18 @@ export interface Transaction {
   description: string;
   date: string;
   type: 'expense' | 'payment';
+}
+
+export interface CasualMatch {
+  id: string;
+  team1: Player[];
+  team2: Player[];
+  score1: number;
+  score2: number;
+  date: string;
+}
+export interface HallOfFameEntry {
+  id: string;
+  teamName: string;
+  date: string;
 }

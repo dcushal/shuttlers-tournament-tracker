@@ -9,11 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react-dom": "^19.2.4",
+    "@supabase/supabase-js": "^2.95.2",
+    "canvas-confetti": "^1.9.4",
     "lucide-react": "^0.563.0",
-    "react": "^19.2.4"
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",

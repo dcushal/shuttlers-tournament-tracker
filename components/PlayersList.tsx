@@ -7,14 +7,15 @@ interface Props {
   players: Player[];
   setPlayers: React.Dispatch<React.SetStateAction<Player[]>>;
   tournaments: Tournament[];
+  user: { role: 'admin' | 'member'; name: string };
 }
 
-const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments }) => {
+const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user }) => {
   const [newPlayerName, setNewPlayerName] = useState('');
 
   const playerStats = useMemo(() => {
     const stats: Record<string, { form: ('W' | 'L')[], titles: number }> = {};
-    
+
     // Process Titles
     tournaments.filter(t => t.status === 'completed').forEach(t => {
       const finalMatch = t.matches.find(m => m.phase === 'finals' && m.isCompleted);
@@ -35,7 +36,7 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments }) => {
     players.forEach(player => {
       if (!stats[player.id]) stats[player.id] = { form: [], titles: 0 };
       const form: ('W' | 'L')[] = [];
-      
+
       for (const t of sorted) {
         if (form.length >= 5) break;
         const playerMatches = t.matches.filter(m => m.isCompleted && (
@@ -44,7 +45,7 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments }) => {
           t.teams.find(tm => tm.id === m.teamBId)?.player1.id === player.id ||
           t.teams.find(tm => tm.id === m.teamBId)?.player2.id === player.id
         ));
-        
+
         playerMatches.reverse().forEach(m => {
           if (form.length >= 5) return;
           const teamA = t.teams.find(tm => tm.id === m.teamAId);
@@ -55,7 +56,7 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments }) => {
       }
       stats[player.id].form = form.reverse();
     });
-    
+
     return stats;
   }, [players, tournaments]);
 
@@ -82,24 +83,26 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments }) => {
         </span>
       </div>
 
-      <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-3xl shadow-xl">
-        <div className="relative">
-          <input
-            type="text"
-            value={newPlayerName}
-            onChange={(e) => setNewPlayerName(e.target.value)}
-            placeholder="Registration Name..."
-            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-white placeholder-zinc-700 focus:outline-none focus:border-green-500 font-bold transition-all"
-            onKeyDown={(e) => e.key === 'Enter' && addPlayer()}
-          />
-          <button
-            onClick={addPlayer}
-            className="absolute right-2 top-2 bg-green-500 text-zinc-950 p-3 rounded-xl hover:bg-green-400 transition-all active:scale-95 shadow-lg shadow-green-500/20"
-          >
-            <Plus size={20} strokeWidth={3} />
-          </button>
+      {user.role === 'admin' && (
+        <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-3xl shadow-xl">
+          <div className="relative">
+            <input
+              type="text"
+              value={newPlayerName}
+              onChange={(e) => setNewPlayerName(e.target.value)}
+              placeholder="Registration Name..."
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-white placeholder-zinc-700 focus:outline-none focus:border-green-500 font-bold transition-all"
+              onKeyDown={(e) => e.key === 'Enter' && addPlayer()}
+            />
+            <button
+              onClick={addPlayer}
+              className="absolute right-2 top-2 bg-green-500 text-zinc-950 p-3 rounded-xl hover:bg-green-400 transition-all active:scale-95 shadow-lg shadow-green-500/20"
+            >
+              <Plus size={20} strokeWidth={3} />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="space-y-3">
         {players.length === 0 ? (
@@ -111,8 +114,8 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments }) => {
           players.map(player => {
             const stats = playerStats[player.id];
             return (
-              <div 
-                key={player.id} 
+              <div
+                key={player.id}
                 className="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-5 rounded-3xl group hover:border-zinc-700 transition-all"
               >
                 <div className="flex items-center gap-4">
@@ -138,8 +141,8 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments }) => {
                     <div className="flex gap-1.5 mt-1">
                       {stats?.form.length > 0 ? (
                         stats.form.map((res, i) => (
-                          <div 
-                            key={i} 
+                          <div
+                            key={i}
                             className={`w-2 h-2 rounded-full ${res === 'W' ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]' : 'bg-red-500/40'}`}
                             title={res === 'W' ? 'Win' : 'Loss'}
                           />
@@ -150,12 +153,14 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments }) => {
                     </div>
                   </div>
                 </div>
-                <button 
-                  onClick={() => removePlayer(player.id)}
-                  className="text-zinc-700 hover:text-red-500 p-2 rounded-xl transition-all"
-                >
-                  <Trash2 size={18} />
-                </button>
+                {user.role === 'admin' && (
+                  <button
+                    onClick={() => removePlayer(player.id)}
+                    className="text-zinc-700 hover:text-red-500 p-2 rounded-xl transition-all"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                )}
               </div>
             );
           })
