@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Player, Tournament, Team, Match, Transaction, HallOfFameEntry } from './types';
 import { usePlayers, useTournaments, useTransactions, useHallOfFame } from './hooks/useSupabase';
+import { supabase } from './lib/supabase';
 import Dashboard from './components/Dashboard';
 import PlayersList from './components/PlayersList';
 import TournamentManager from './components/TournamentManager';
@@ -212,17 +213,49 @@ const App: React.FC = () => {
 
   const deleteTournament = (id: string) => {
     if (confirm("Are you sure you want to delete this tournament entry? This will permanently affect rankings and stats.")) {
-      // 1. Remove tournament locally
+      // 1. Identify the tournament to be deleted
+      const tournamentToDelete = tournaments.find(t => t.id === id);
+
+      // 2. Remove tournament locally
       const remainingTournaments = tournaments.filter(t => t.id !== id);
 
-      // 2. Recalculate Rankings based on remaining history
+      // 3. Recalculate Rankings based on remaining history
       const reRankedPlayers = recalculatePlayerStats(players, remainingTournaments);
 
-      // 3. Update State & Supabase
+      // 4. Update State (Rankings & Tournaments)
       setPlayers(reRankedPlayers); // Synced to DB automatically by the hook
       setTournaments(remainingTournaments); // Synced to local state
 
-      // Delete from Supabase
+      // 5. Delete Hall of Fame Entry if applicable
+      if (tournamentToDelete && tournamentToDelete.status === 'completed') {
+        const finalMatch = tournamentToDelete.matches.find(m => m.phase === 'finals' && m.isCompleted);
+        if (finalMatch) {
+          const winnerId = finalMatch.scoreA > finalMatch.scoreB ? finalMatch.teamAId : finalMatch.teamBId;
+          const winnerTeam = tournamentToDelete.teams.find(t => t.id === winnerId);
+          if (winnerTeam) {
+            const winnerTeamName = `${winnerTeam.player1.name} & ${winnerTeam.player2.name}`;
+            const tournamentDate = new Date(tournamentToDelete.date).toISOString().split('T')[0];
+
+            // Find matching HOF entry
+            const hofEntryToDelete = hallOfFame.find(
+              h => h.date === tournamentDate && h.teamName === winnerTeamName
+            );
+
+            if (hofEntryToDelete) {
+              setHallOfFame(prev => prev.filter(h => h.id !== hofEntryToDelete.id)); // Update local
+
+              // Delete from Supabase
+              if (supabase) {
+                supabase.from('hall_of_fame').delete().eq('id', hofEntryToDelete.id).then(({ error }) => {
+                  if (error) console.error("Failed to delete field from Hall of Fame", error);
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // 6. Delete Tournament from Supabase
       supabaseDeleteTournament(id);
     }
   };
