@@ -5,6 +5,7 @@ export interface Player {
   points: number;
   rank: number;
   previousRank: number;
+  isCheckedIn?: boolean;
 }
 
 export interface Team {

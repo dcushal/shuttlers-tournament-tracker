@@ -48,6 +48,7 @@ const App: React.FC = () => {
   const {
     players,
     setPlayers,
+    toggleCheckIn,
     loading: playersLoading
   } = usePlayers(() => {
     const saved = localStorage.getItem('shuttlers_players');
@@ -116,12 +117,8 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : INITIAL_HALL_OF_FAME;
   });
 
-  const [checkedInIds, setCheckedInIds] = useState<string[]>(() => {
-    const saved = localStorage.getItem('shuttlers_attendance');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-
+  // Derived state for checked-in players (synced via Supabase)
+  const checkedInIds = players.filter(p => p.isCheckedIn).map(p => p.id);
 
   useEffect(() => {
     localStorage.setItem('shuttlers_players', JSON.stringify(players));
@@ -131,9 +128,7 @@ const App: React.FC = () => {
     localStorage.setItem('shuttlers_tournaments', JSON.stringify(tournaments));
   }, [tournaments]);
 
-  useEffect(() => {
-    localStorage.setItem('shuttlers_attendance', JSON.stringify(checkedInIds));
-  }, [checkedInIds]);
+  // Removed localStorage sync for attendance as it is now in DB
 
   useEffect(() => {
     localStorage.setItem('shuttlers_transactions', JSON.stringify(transactions));
@@ -151,10 +146,11 @@ const App: React.FC = () => {
     }
   }, [user]);
 
-  const toggleCheckIn = (id: string) => {
-    setCheckedInIds(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
+  const handleToggleCheckIn = (id: string) => {
+    const player = players.find(p => p.id === id);
+    if (player) {
+      toggleCheckIn(id, !player.isCheckedIn);
+    }
   };
 
   const activeTournament = tournaments.find(t => t.status === 'active');
@@ -286,7 +282,7 @@ const App: React.FC = () => {
             tournaments={tournaments}
             user={user}
             checkedInIds={checkedInIds}
-            onToggleCheckIn={toggleCheckIn}
+            onToggleCheckIn={handleToggleCheckIn}
           />
         )}
 

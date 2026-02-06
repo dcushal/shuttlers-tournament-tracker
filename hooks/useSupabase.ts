@@ -29,7 +29,8 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                     name: p.name,
                     points: p.points,
                     rank: p.rank,
-                    previousRank: p.previous_rank
+                    previousRank: p.previous_rank,
+                    isCheckedIn: p.is_checked_in
                 })));
             }
         } catch (err) {
@@ -63,7 +64,8 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                         name: p.name,
                         points: p.points,
                         rank: p.rank,
-                        previous_rank: p.previousRank
+                        previous_rank: p.previousRank,
+                        is_checked_in: p.isCheckedIn
                     })),
                     { onConflict: 'id' }
                 );
@@ -94,7 +96,23 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
         }
     }, [players, updatePlayers]);
 
-    return { players, setPlayers: updatePlayers, addPlayer, deletePlayer, loading, error, refetch: fetchPlayers };
+    // Toggle Check-In status specifically
+    const toggleCheckIn = useCallback(async (playerId: string, isCheckedIn: boolean) => {
+        setPlayers(prev => prev.map(p => p.id === playerId ? { ...p, isCheckedIn } : p));
+
+        if (isSupabaseConfigured() && supabase) {
+            try {
+                await supabase
+                    .from('players')
+                    .update({ is_checked_in: isCheckedIn })
+                    .eq('id', playerId);
+            } catch (err) {
+                console.error('Error updating check-in status:', err);
+            }
+        }
+    }, []);
+
+    return { players, setPlayers: updatePlayers, addPlayer, deletePlayer, toggleCheckIn, loading, error, refetch: fetchPlayers };
 }
 
 // ============ TOURNAMENTS HOOK ============
