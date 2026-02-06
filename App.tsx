@@ -201,7 +201,8 @@ const App: React.FC = () => {
           teamName: `${winnerTeam.player1.name} & ${winnerTeam.player2.name}`,
           date: new Date().toISOString().split('T')[0]
         };
-        setHallOfFame(prev => [entry, ...prev]);
+        // Fix: updateHallOfFame hook expects an array, not a function updater
+        setHallOfFame([entry, ...hallOfFame]);
       }
     }
 
