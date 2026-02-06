@@ -11,6 +11,7 @@ import Header from './components/Header';
 import Rankings from './components/Rankings';
 import Login from './components/Login';
 import { Trophy, Users, LayoutDashboard, Crown, Lightbulb, Wallet } from 'lucide-react';
+import { recalculatePlayerStats } from './utils/rankingSystem';
 
 const INITIAL_RANKINGS: { name: string; points: number }[] = [
   { name: "Viru", points: 100 },
@@ -166,92 +167,32 @@ const App: React.FC = () => {
     hookCreateTournament(newTournament);
   };
 
+
+
+  // ... (imports remain the same)
+
+  // ... (inside App component)
+
   const completeTournament = (id: string) => {
     const tournament = tournaments.find(t => t.id === id);
     if (!tournament) return;
 
-    // 1. Calculate Standings
-    const stats: Record<string, { won: number; pointDiff: number; teamId: string }> = {};
-    tournament.teams.forEach(team => {
-      stats[team.id] = { teamId: team.id, won: 0, pointDiff: 0 };
-    });
+    // 1. Mark tournament as completed locally first
+    const updatedTournament = { ...tournament, status: 'completed' as const };
+    const updatedTournaments = tournaments.map(t => t.id === id ? updatedTournament : t);
 
-    tournament.matches.filter(m => m.isCompleted).forEach(match => {
-      const isA = match.scoreA > match.scoreB;
-      stats[match.teamAId].won += isA ? 1 : 0;
-      stats[match.teamBId].won += isA ? 0 : 1;
-      stats[match.teamAId].pointDiff += (match.scoreA - match.scoreB);
-      stats[match.teamBId].pointDiff += (match.scoreB - match.scoreA);
-    });
+    // 2. Recalculate EVERYTHING based on history
+    const reRankedPlayers = recalculatePlayerStats(players, updatedTournaments);
 
-    const sortedStandings = Object.values(stats).sort((a, b) =>
-      b.won !== a.won ? b.won - a.won : b.pointDiff - a.pointDiff
-    );
+    // 3. Update State & Supabase
+    setPlayers(reRankedPlayers);
 
-    // 2. Award Points
-    const pointRewards = [10, 5, 0, -5, -10];
-    const updatedPlayers = [...players];
-
-    sortedStandings.forEach((standing, index) => {
-      const reward = pointRewards[index] || 0;
-      const performanceBonus = standing.pointDiff > 0 ? standing.pointDiff / 2 : 0;
-      const totalPointsAwarded = reward + performanceBonus;
-
-      const team = tournament.teams.find(t => t.id === standing.teamId);
-      if (team) {
-        [team.player1.id, team.player2.id].forEach(pid => {
-          const pIdx = updatedPlayers.findIndex(p => p.id === pid);
-          if (pIdx !== -1) {
-            updatedPlayers[pIdx].points += totalPointsAwarded;
-          }
-        });
-      }
-    });
-
-    // 3. Re-rank Players
-    const playerPerformanceStats: Record<string, { wins: number; matches: number; totalDiff: number }> = {};
-    players.forEach(p => playerPerformanceStats[p.id] = { wins: 0, matches: 0, totalDiff: 0 });
-
-    tournaments.concat(tournament).forEach(t => {
-      t.matches.filter(m => m.isCompleted).forEach(m => {
-        const teamA = t.teams.find(tm => tm.id === m.teamAId);
-        const teamB = t.teams.find(tm => tm.id === m.teamBId);
-        if (teamA && teamB) {
-          const winnerId = m.scoreA > m.scoreB ? m.teamAId : m.teamBId;
-          [teamA, teamB].forEach(team => {
-            const teamDiff = team.id === m.teamAId ? (m.scoreA - m.scoreB) : (m.scoreB - m.scoreA);
-            [team.player1.id, team.player2.id].forEach(pid => {
-              if (playerPerformanceStats[pid]) {
-                playerPerformanceStats[pid].matches++;
-                playerPerformanceStats[pid].totalDiff += teamDiff;
-                if (team.id === winnerId) playerPerformanceStats[pid].wins++;
-              }
-            });
-          });
-        }
-      });
-    });
-
-    const reRanked = [...updatedPlayers]
-      .sort((a, b) => {
-        // 1. Points
-        if (b.points !== a.points) return b.points - a.points;
-
-        // 2. Win Rate
-        const wrA = playerPerformanceStats[a.id].matches > 0 ? playerPerformanceStats[a.id].wins / playerPerformanceStats[a.id].matches : 0;
-        const wrB = playerPerformanceStats[b.id].matches > 0 ? playerPerformanceStats[b.id].wins / playerPerformanceStats[b.id].matches : 0;
-        if (wrB !== wrA) return wrB - wrA;
-
-        // 3. Total Point Difference / 2
-        return (playerPerformanceStats[b.id].totalDiff / 2) - (playerPerformanceStats[a.id].totalDiff / 2);
-      })
-      .map((p, index) => ({
-        ...p,
-        previousRank: p.rank,
-        rank: index + 1
-      }));
-
-    setPlayers(reRanked);
+    // Update players in Supabase (the hook handles the upsert loop)
+    // We need to cast back to Player[] because recalculate returns the shape but maybe slight variations? 
+    // Actually the shape matches.
+    // NOTE: We need to access the 'updatePlayers' function from usePlayers hook, but it is currently named 'setPlayers' in the destructuring.
+    // The setPlayers from usePlayers ALREADY calls supabase upsert. 
+    // So setPlayers(reRankedPlayers) above handles the DB sync!
 
     // 4. Update Hall of Fame
     const finalMatch = tournament.matches.find(m => m.phase === 'finals' && m.isCompleted);
@@ -268,12 +209,23 @@ const App: React.FC = () => {
       }
     }
 
-    setTournaments(prev => prev.map(t => t.id === id ? { ...t, status: 'completed' } : t));
-    hookUpdateTournament({ ...tournament, status: 'completed' });
+    setTournaments(updatedTournaments);
+    hookUpdateTournament(updatedTournament);
   };
 
   const deleteTournament = (id: string) => {
     if (confirm("Are you sure you want to delete this tournament entry? This will permanently affect rankings and stats.")) {
+      // 1. Remove tournament locally
+      const remainingTournaments = tournaments.filter(t => t.id !== id);
+
+      // 2. Recalculate Rankings based on remaining history
+      const reRankedPlayers = recalculatePlayerStats(players, remainingTournaments);
+
+      // 3. Update State & Supabase
+      setPlayers(reRankedPlayers); // Synced to DB automatically by the hook
+      setTournaments(remainingTournaments); // Synced to local state
+
+      // Delete from Supabase
       supabaseDeleteTournament(id);
     }
   };
@@ -283,17 +235,9 @@ const App: React.FC = () => {
       setTournaments([]);
       setTransactions([]);
 
-      const resetPlayers = players.map(p => {
-        const initial = INITIAL_RANKINGS.find(ir => ir.name.toLowerCase() === p.name.toLowerCase());
-        const rankIdx = INITIAL_RANKINGS.findIndex(ir => ir.name.toLowerCase() === p.name.toLowerCase());
-
-        return {
-          ...p,
-          points: initial ? initial.points : 0,
-          rank: rankIdx !== -1 ? rankIdx + 1 : 11,
-          previousRank: rankIdx !== -1 ? rankIdx + 1 : 11
-        };
-      }).sort((a, b) => a.rank - b.rank);
+      // Reset players to initial state
+      // We can use the recalculate logic with empty tournaments list!
+      const resetPlayers = recalculatePlayerStats(players, []);
 
       setPlayers(resetPlayers);
       alert("System Data & Global Rankings have been reset successfully.");

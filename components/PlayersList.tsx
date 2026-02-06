@@ -64,7 +64,10 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user }
     if (!newPlayerName.trim()) return;
     const player: Player = {
       id: crypto.randomUUID(),
-      name: newPlayerName.trim()
+      name: newPlayerName.trim(),
+      points: 0,
+      rank: players.length + 1,
+      previousRank: players.length + 1
     };
     setPlayers(prev => [...prev, player]);
     setNewPlayerName('');

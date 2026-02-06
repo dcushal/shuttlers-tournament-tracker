@@ -73,7 +73,7 @@ const Treasury: React.FC<Props> = ({ players, checkedInIds, transactions, setTra
     if (balance <= 0) return;
 
     const purchaserId = Object.entries(ledger)
-      .sort((a, b) => a[1] - b[1])[0]?.[0];
+      .sort((a: [string, number], b: [string, number]) => a[1] - b[1])[0]?.[0];
 
     const payerPayment: Transaction = {
       id: crypto.randomUUID(),
@@ -109,7 +109,7 @@ const Treasury: React.FC<Props> = ({ players, checkedInIds, transactions, setTra
     if (isNaN(val) || val <= 0 || !manualPayerId) return;
 
     const purchaserId = Object.entries(ledger)
-      .sort((a, b) => a[1] - b[1])[0]?.[0];
+      .sort((a: [string, number], b: [string, number]) => a[1] - b[1])[0]?.[0];
 
     const payerPayment: Transaction = {
       id: crypto.randomUUID(),
