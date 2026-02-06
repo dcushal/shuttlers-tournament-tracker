@@ -77,18 +77,30 @@ const DataMigration: React.FC<DataMigrationProps> = ({
 
         try {
             const text = await file.text();
-            const data: ExportData = JSON.parse(text);
+            const data: any = JSON.parse(text);
 
-            if (!data.version || !data.players) {
-                throw new Error('Invalid backup file format');
+            // Validate that the file has player data (required field)
+            if (!data.players || !Array.isArray(data.players)) {
+                throw new Error('Invalid backup file format: missing or invalid players data');
             }
 
+            // Convert to ExportData format (handle both old and new formats)
+            const importData: ExportData = {
+                version: data.version || '1.0',
+                exportedAt: data.exportedAt || new Date().toISOString(),
+                players: data.players || [],
+                tournaments: data.tournaments || [],
+                transactions: data.transactions || [],
+                hallOfFame: data.hallOfFame || [],
+                attendance: data.attendance || []
+            };
+
             // Import players
-            if (data.players.length > 0) {
+            if (importData.players.length > 0) {
                 const { error: playersError } = await supabase
                     .from('players')
                     .upsert(
-                        data.players.map(p => ({
+                        importData.players.map(p => ({
                             id: p.id,
                             name: p.name,
                             points: p.points,
@@ -102,11 +114,11 @@ const DataMigration: React.FC<DataMigrationProps> = ({
             }
 
             // Import hall of fame
-            if (data.hallOfFame.length > 0) {
+            if (importData.hallOfFame.length > 0) {
                 const { error: hofError } = await supabase
                     .from('hall_of_fame')
                     .upsert(
-                        data.hallOfFame.map(h => ({
+                        importData.hallOfFame.map(h => ({
                             id: h.id,
                             team_name: h.teamName,
                             date: h.date
@@ -118,11 +130,11 @@ const DataMigration: React.FC<DataMigrationProps> = ({
             }
 
             // Import transactions
-            if (data.transactions.length > 0) {
+            if (importData.transactions.length > 0) {
                 const { error: transactionsError } = await supabase
                     .from('transactions')
                     .upsert(
-                        data.transactions.map(t => ({
+                        importData.transactions.map(t => ({
                             id: t.id,
                             player_id: t.playerId,
                             amount: t.amount,
@@ -137,7 +149,7 @@ const DataMigration: React.FC<DataMigrationProps> = ({
             }
 
             // Import tournaments (more complex due to nested structure)
-            for (const tournament of data.tournaments) {
+            for (const tournament of importData.tournaments) {
                 // Insert tournament
                 const { error: tournamentError } = await supabase
                     .from('tournaments')
@@ -191,7 +203,7 @@ const DataMigration: React.FC<DataMigrationProps> = ({
                 }
             }
 
-            setStatus({ type: 'success', message: `Successfully imported ${data.players.length} players, ${data.tournaments.length} tournaments, ${data.transactions.length} transactions, and ${data.hallOfFame.length} hall of fame entries!` });
+            setStatus({ type: 'success', message: `Successfully imported ${importData.players.length} players, ${importData.tournaments.length} tournaments, ${importData.transactions.length} transactions, and ${importData.hallOfFame.length} hall of fame entries!` });
             onImportComplete();
         } catch (err) {
             console.error('Import error:', err);
@@ -217,8 +229,8 @@ const DataMigration: React.FC<DataMigrationProps> = ({
 
             {status && (
                 <div className={`rounded-lg p-3 flex items-start gap-2 ${status.type === 'success' ? 'bg-green-900/30 border border-green-700/50' :
-                        status.type === 'error' ? 'bg-red-900/30 border border-red-700/50' :
-                            'bg-blue-900/30 border border-blue-700/50'
+                    status.type === 'error' ? 'bg-red-900/30 border border-red-700/50' :
+                        'bg-blue-900/30 border border-blue-700/50'
                     }`}>
                     {status.type === 'success' ? (
                         <CheckCircle className="text-green-500 flex-shrink-0 mt-0.5" size={16} />
@@ -228,8 +240,8 @@ const DataMigration: React.FC<DataMigrationProps> = ({
                         <Loader2 className="text-blue-500 flex-shrink-0 mt-0.5 animate-spin" size={16} />
                     )}
                     <p className={`text-xs ${status.type === 'success' ? 'text-green-200' :
-                            status.type === 'error' ? 'text-red-200' :
-                                'text-blue-200'
+                        status.type === 'error' ? 'text-red-200' :
+                            'text-blue-200'
                         }`}>
                         {status.message}
                     </p>
@@ -246,8 +258,8 @@ const DataMigration: React.FC<DataMigrationProps> = ({
                 </button>
 
                 <label className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg transition-colors cursor-pointer ${isSupabaseConfigured() && !importing
-                        ? 'bg-green-600 hover:bg-green-500 text-white'
-                        : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                    ? 'bg-green-600 hover:bg-green-500 text-white'
+                    : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
                     }`}>
                     {importing ? (
                         <Loader2 size={18} className="animate-spin" />
