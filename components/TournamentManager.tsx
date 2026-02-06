@@ -91,12 +91,11 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
   };
 
   const rankPairing = () => {
-    if (checkedInIds.length < 4) {
-      alert("Need at least 4 checked-in players to pair.");
+    if (players.length < 4) {
+      alert("Need at least 4 players to pair.");
       return;
     }
-    const checkedInPlayers = players
-      .filter(p => checkedInIds.includes(p.id))
+    const checkedInPlayers = [...players]
       .sort((a, b) => a.rank - b.rank);
     const newTeams: Team[] = [];
     const len = checkedInPlayers.length;
