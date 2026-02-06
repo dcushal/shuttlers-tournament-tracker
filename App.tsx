@@ -269,9 +269,8 @@ const App: React.FC = () => {
             activeTournament={activeTournament}
             tournaments={tournaments}
             players={players}
-            checkedInIds={checkedInIds}
             transactions={transactions}
-            onToggleCheckIn={toggleCheckIn}
+
             onNavigate={(tab) => setActiveTab(tab)}
             onResetData={resetData}
             user={user}
@@ -281,7 +280,14 @@ const App: React.FC = () => {
         )}
 
         {activeTab === 'players' && (
-          <PlayersList players={players} setPlayers={setPlayers} tournaments={tournaments} user={user} />
+          <PlayersList
+            players={players}
+            setPlayers={setPlayers}
+            tournaments={tournaments}
+            user={user}
+            checkedInIds={checkedInIds}
+            onToggleCheckIn={toggleCheckIn}
+          />
         )}
 
         {activeTab === 'tournament' && (

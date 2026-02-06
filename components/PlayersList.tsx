@@ -1,16 +1,17 @@
-
 import React, { useState, useMemo } from 'react';
 import { Player, Tournament } from '../types';
-import { Plus, Trash2, UserPlus, Trophy } from 'lucide-react';
+import { Plus, Trash2, UserPlus, Trophy, CheckCircle2 } from 'lucide-react';
 
 interface Props {
   players: Player[];
   setPlayers: React.Dispatch<React.SetStateAction<Player[]>>;
   tournaments: Tournament[];
   user: { role: 'admin' | 'member'; name: string };
+  checkedInIds: string[];
+  onToggleCheckIn: (id: string) => void;
 }
 
-const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user }) => {
+const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user, checkedInIds, onToggleCheckIn }) => {
   const [newPlayerName, setNewPlayerName] = useState('');
 
   const playerStats = useMemo(() => {
@@ -116,15 +117,24 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user }
         ) : (
           players.map(player => {
             const stats = playerStats[player.id];
+            const isCheckedIn = checkedInIds.includes(player.id);
+
             return (
               <div
                 key={player.id}
-                className="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-5 rounded-3xl group hover:border-zinc-700 transition-all"
+                onClick={() => user.role === 'admin' && onToggleCheckIn(player.id)}
+                className={`flex items-center justify-between bg-zinc-900 border p-5 rounded-3xl group transition-all cursor-pointer ${isCheckedIn
+                    ? 'border-green-500/50 bg-green-500/5 shadow-[0_0_20px_rgba(34,197,94,0.1)]'
+                    : 'border-zinc-800 hover:border-zinc-700'
+                  }`}
               >
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className="w-12 h-12 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-green-500 font-black text-sm group-hover:bg-green-500 group-hover:text-zinc-950 transition-all">
-                      {player.name.charAt(0).toUpperCase()}
+                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center font-black text-sm transition-all ${isCheckedIn
+                        ? 'bg-green-500 text-zinc-950 border-green-500'
+                        : 'bg-zinc-950 border-zinc-800 text-green-500 group-hover:bg-green-500 group-hover:text-zinc-950'
+                      }`}>
+                      {isCheckedIn ? <CheckCircle2 size={20} /> : player.name.charAt(0).toUpperCase()}
                     </div>
                     {stats?.titles > 0 && (
                       <div className="absolute -top-1 -right-1 bg-yellow-500 text-zinc-950 w-5 h-5 rounded-full flex items-center justify-center border-2 border-zinc-900 shadow-lg">
@@ -134,7 +144,9 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user }
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-black text-white uppercase tracking-tight text-base">{player.name}</span>
+                      <span className={`font-black uppercase tracking-tight text-base transition-colors ${isCheckedIn ? 'text-white' : 'text-zinc-400'}`}>
+                        {player.name}
+                      </span>
                       {stats?.titles > 0 && (
                         <span className="text-[10px] text-yellow-500 font-black flex items-center gap-0.5">
                           ×{stats.titles}
@@ -158,7 +170,10 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user }
                 </div>
                 {user.role === 'admin' && (
                   <button
-                    onClick={() => removePlayer(player.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removePlayer(player.id);
+                    }}
                     className="text-zinc-700 hover:text-red-500 p-2 rounded-xl transition-all"
                   >
                     <Trash2 size={18} />

@@ -9,10 +9,8 @@ interface Props {
   activeTournament?: Tournament;
   tournaments: Tournament[];
   players: Player[];
-  checkedInIds: string[];
   transactions: Transaction[];
   hallOfFame: HallOfFameEntry[];
-  onToggleCheckIn: (id: string) => void;
   onNavigate: (tab: 'dashboard' | 'players' | 'tournament' | 'rankings' | 'insights' | 'treasury') => void;
   onResetData: () => void;
   onDeleteHOF: (id: string) => void;
@@ -20,7 +18,7 @@ interface Props {
   user: { role: 'admin' | 'member'; name: string };
 }
 
-const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, checkedInIds, transactions, hallOfFame, onToggleCheckIn, onNavigate, onResetData, onDeleteHOF, onDataRefresh, user }) => {
+const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, transactions, hallOfFame, onNavigate, onResetData, onDeleteHOF, onDataRefresh, user }) => {
   const mvp = React.useMemo(() => {
     return [...players].sort((a, b) => b.points - a.points)[0] || null;
   }, [players]);
