@@ -81,12 +81,20 @@ export function recalculatePlayerStats(players: Player[], tournaments: Tournamen
             // 2. Award Points
             const pointRewards = [10, 5, 0, -5, -10];
 
+            // scoring V2: Effective from Feb 6, 2026
+            // Rules: Placement points + Performance Bonus + (Match Wins * 2)
+            const SCORING_V2_DATE = new Date('2026-02-06T19:00:00'); // 7 PM IST approx
+            const isV2 = new Date(t.date) >= SCORING_V2_DATE;
+
             sortedStandings.forEach((standing, index) => {
                 const reward = pointRewards[index] || 0;
                 const performanceBonus = standing.pointDiff > 0 ? standing.pointDiff / 2 : 0;
 
+                // V2: Add 2 points per match win
+                const matchWinBonus = isV2 ? (standing.won * 2) : 0;
+
                 // Ensure bonus is only added if result is positive (safety check, though logic says it is)
-                const totalPointsAwarded = reward + (performanceBonus > 0 ? performanceBonus : 0);
+                const totalPointsAwarded = reward + (performanceBonus > 0 ? performanceBonus : 0) + matchWinBonus;
 
                 const team = t.teams.find(tm => tm.id === standing.teamId);
                 if (team) {
