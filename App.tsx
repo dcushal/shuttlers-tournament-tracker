@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Player, Tournament, Team, Match, Transaction, HallOfFameEntry } from './types';
+import { usePlayers, useTournaments, useTransactions, useHallOfFame } from './hooks/useSupabase';
 import Dashboard from './components/Dashboard';
 import PlayersList from './components/PlayersList';
 import TournamentManager from './components/TournamentManager';
@@ -36,18 +37,18 @@ const INITIAL_HALL_OF_FAME: HallOfFameEntry[] = [
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'players' | 'tournament' | 'rankings' | 'insights' | 'treasury'>('dashboard');
 
-  const [hallOfFame, setHallOfFame] = useState<HallOfFameEntry[]>(() => {
-    const saved = localStorage.getItem('shuttlers_hof');
-    return saved ? JSON.parse(saved) : INITIAL_HALL_OF_FAME;
-  });
-
   // Auth State
   const [user, setUser] = useState<{ role: 'admin' | 'member'; name: string } | null>(() => {
     const saved = localStorage.getItem('shuttlers_user');
     return saved ? JSON.parse(saved) : null;
   });
 
-  const [players, setPlayers] = useState<Player[]>(() => {
+  // Supabase Hooks
+  const {
+    players,
+    setPlayers,
+    loading: playersLoading
+  } = usePlayers(() => {
     const saved = localStorage.getItem('shuttlers_players');
     let loadedPlayers: Player[] = [];
 
@@ -62,7 +63,6 @@ const App: React.FC = () => {
           return {
             ...p,
             points,
-            // We'll recalculate rank below
             rank: p.rank || 11,
             previousRank: p.previousRank || p.rank || 11
           };
@@ -80,7 +80,6 @@ const App: React.FC = () => {
       }));
     }
 
-    // Always sort by points and re-assign ranks on load to fix any inconsistencies
     return [...loadedPlayers]
       .sort((a, b) => b.points - a.points)
       .map((p, index) => ({
@@ -89,18 +88,35 @@ const App: React.FC = () => {
       }));
   });
 
-  const [tournaments, setTournaments] = useState<Tournament[]>(() => {
+  const {
+    tournaments,
+    setTournaments,
+    createTournament: hookCreateTournament,
+    updateTournament: hookUpdateTournament,
+    deleteTournament: supabaseDeleteTournament
+  } = useTournaments(() => {
     const saved = localStorage.getItem('shuttlers_tournaments');
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [checkedInIds, setCheckedInIds] = useState<string[]>(() => {
-    const saved = localStorage.getItem('shuttlers_attendance');
+  const {
+    transactions,
+    setTransactions
+  } = useTransactions(() => {
+    const saved = localStorage.getItem('shuttlers_transactions');
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const saved = localStorage.getItem('shuttlers_transactions');
+  const {
+    hallOfFame,
+    setHallOfFame
+  } = useHallOfFame(() => {
+    const saved = localStorage.getItem('shuttlers_hof');
+    return saved ? JSON.parse(saved) : INITIAL_HALL_OF_FAME;
+  });
+
+  const [checkedInIds, setCheckedInIds] = useState<string[]>(() => {
+    const saved = localStorage.getItem('shuttlers_attendance');
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -143,11 +159,11 @@ const App: React.FC = () => {
   const activeTournament = tournaments.find(t => t.status === 'active');
 
   const updateActiveTournament = (updated: Tournament) => {
-    setTournaments(prev => prev.map(t => t.id === updated.id ? updated : t));
+    hookUpdateTournament(updated);
   };
 
   const createTournament = (newTournament: Tournament) => {
-    setTournaments(prev => [...prev, newTournament]);
+    hookCreateTournament(newTournament);
   };
 
   const completeTournament = (id: string) => {
@@ -253,11 +269,12 @@ const App: React.FC = () => {
     }
 
     setTournaments(prev => prev.map(t => t.id === id ? { ...t, status: 'completed' } : t));
+    hookUpdateTournament({ ...tournament, status: 'completed' });
   };
 
   const deleteTournament = (id: string) => {
     if (confirm("Are you sure you want to delete this tournament entry? This will permanently affect rankings and stats.")) {
-      setTournaments(prev => prev.filter(t => t.id !== id));
+      supabaseDeleteTournament(id);
     }
   };
 

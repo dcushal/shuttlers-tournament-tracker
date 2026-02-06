@@ -3,7 +3,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { Player, Tournament, Team, Match, Transaction, HallOfFameEntry } from '../types';
 
 // ============ PLAYERS HOOK ============
-export function usePlayers(initialPlayers: Player[]) {
+export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
     const [players, setPlayers] = useState<Player[]>(initialPlayers);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -98,7 +98,7 @@ export function usePlayers(initialPlayers: Player[]) {
 }
 
 // ============ TOURNAMENTS HOOK ============
-export function useTournaments(initialTournaments: Tournament[]) {
+export function useTournaments(initialTournaments: Tournament[] | (() => Tournament[])) {
     const [tournaments, setTournaments] = useState<Tournament[]>(initialTournaments);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -343,7 +343,7 @@ export function useTournaments(initialTournaments: Tournament[]) {
 }
 
 // ============ TRANSACTIONS HOOK ============
-export function useTransactions(initialTransactions: Transaction[]) {
+export function useTransactions(initialTransactions: Transaction[] | (() => Transaction[])) {
     const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -420,7 +420,7 @@ export function useTransactions(initialTransactions: Transaction[]) {
 }
 
 // ============ HALL OF FAME HOOK ============
-export function useHallOfFame(initialHallOfFame: HallOfFameEntry[]) {
+export function useHallOfFame(initialHallOfFame: HallOfFameEntry[] | (() => HallOfFameEntry[])) {
     const [hallOfFame, setHallOfFame] = useState<HallOfFameEntry[]>(initialHallOfFame);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);

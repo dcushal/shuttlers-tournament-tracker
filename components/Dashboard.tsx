@@ -3,7 +3,7 @@ import { Tournament, Player, Transaction, HallOfFameEntry } from '../types';
 import { Play, Trophy, ChevronRight, Lightbulb, Clock, CheckCircle2, Wallet, RotateCcw, Crown, Trash2, Award, Lock } from 'lucide-react';
 import Logo from './Logo';
 import confetti from 'canvas-confetti';
-import DataMigration from './DataMigration';
+
 
 interface Props {
   activeTournament?: Tournament;
@@ -277,13 +277,6 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, ch
 
       {user.role === 'admin' && (
         <>
-          <DataMigration
-            players={players}
-            tournaments={tournaments}
-            transactions={transactions}
-            hallOfFame={hallOfFame}
-            onImportComplete={onDataRefresh || (() => window.location.reload())}
-          />
           <button
             onClick={onResetData}
             className="w-full mt-4 bg-zinc-950 border border-red-500/20 text-red-500 p-4 rounded-3xl text-xs font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2 group"
