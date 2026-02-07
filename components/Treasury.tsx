@@ -63,7 +63,7 @@ const Treasury: React.FC<Props> = ({ players, checkedInIds, transactions, setTra
       type: 'expense'
     }));
 
-    setTransactions(prev => [...prev, creditTransaction, ...debtTransactions]);
+    setTransactions([...transactions, creditTransaction, ...debtTransactions]);
     setAmount('');
     setBuyerId('');
   };
@@ -97,11 +97,11 @@ const Treasury: React.FC<Props> = ({ players, checkedInIds, transactions, setTra
       });
     }
 
-    setTransactions(prev => [...prev, ...newTransactions]);
+    setTransactions([...transactions, ...newTransactions]);
   };
 
   const deleteTransaction = (id: string) => {
-    setTransactions(prev => prev.filter(t => t.id !== id));
+    setTransactions(transactions.filter(t => t.id !== id));
   };
 
   const addManualPayment = () => {
@@ -133,7 +133,7 @@ const Treasury: React.FC<Props> = ({ players, checkedInIds, transactions, setTra
       });
     }
 
-    setTransactions(prev => [...prev, ...newTransactions]);
+    setTransactions([...transactions, ...newTransactions]);
     setManualAmount('');
     setManualPayerId('');
   };

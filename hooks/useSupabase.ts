@@ -429,6 +429,19 @@ export function useTransactions(initialTransactions: Transaction[] | (() => Tran
 
                 if (error) throw error;
             }
+
+            // Check for deleted transactions
+            const newIds = newTransactions.map(t => t.id);
+            const deletedIds = currentIds.filter(id => !newIds.includes(id));
+
+            if (deletedIds.length > 0) {
+                const { error } = await supabase
+                    .from('transactions')
+                    .delete()
+                    .in('id', deletedIds);
+
+                if (error) throw error;
+            }
         } catch (err) {
             console.error('Error updating transactions:', err);
         }
