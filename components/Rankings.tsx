@@ -157,10 +157,28 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                             </div>
                         </div>
 
-                        {/* Point 2: Performance */}
+                        {/* Point 2: Match Win Points */}
                         <div className="space-y-3">
                             <h4 className="text-[11px] font-black text-white uppercase flex items-center gap-2 tracking-tight">
-                                <Zap size={14} className="text-blue-400" /> 2. Performance Bonus
+                                <Trophy size={14} className="text-orange-500" /> 2. Match Win Points
+                            </h4>
+                            <div className="bg-zinc-950 border border-zinc-800/50 p-4 rounded-2xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-3 opacity-10">
+                                    <Trophy size={32} className="text-orange-500" />
+                                </div>
+                                <p className="text-[10px] font-bold text-zinc-400 leading-relaxed relative z-10">
+                                    Each match won in the group stage awards <span className="text-white">+2 points</span>.
+                                </p>
+                                <div className="mt-2 py-1 px-3 bg-orange-500/10 border border-orange-500/20 rounded-lg inline-block">
+                                    <code className="text-[9px] font-black text-orange-500 uppercase tracking-wider">3 Wins = +6 Points</code>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Point 3: Performance */}
+                        <div className="space-y-3">
+                            <h4 className="text-[11px] font-black text-white uppercase flex items-center gap-2 tracking-tight">
+                                <Zap size={14} className="text-blue-400" /> 3. Performance Bonus
                             </h4>
                             <div className="bg-zinc-950 border border-zinc-800/50 p-4 rounded-2xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-3 opacity-10">
@@ -179,10 +197,10 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                         <div className="bg-green-500/5 border border-green-500/10 p-4 rounded-2xl space-y-2">
                             <p className="text-[9px] font-black text-green-500 uppercase tracking-widest">Example Calculation:</p>
                             <p className="text-[11px] text-zinc-400 font-medium leading-relaxed">
-                                If <span className="text-white font-black">PLAYER</span> comes 1st <span className="text-green-500 font-bold">(+10)</span> and finishes the tournament with a total of <span className="text-white font-black">+20</span> point difference <span className="text-green-500 font-bold">(20/2 = +10)</span>...
+                                If <span className="text-white font-black">PLAYER</span> comes 1st <span className="text-green-500 font-bold">(+10)</span>, wins 3 matches <span className="text-orange-500 font-bold">(3x2 = +6)</span>, and finishes with <span className="text-white font-black">+20</span> point difference <span className="text-blue-400 font-bold">(20/2 = +10)</span>...
                             </p>
                             <p className="text-xs font-black text-white uppercase pt-1 tracking-tight">
-                                Total Global Gain: <span className="text-green-500 font-black">+20 Points</span>
+                                Total Global Gain: <span className="text-green-500 font-black">10 + 6 + 10 = +26 Points</span>
                             </p>
                         </div>
                     </div>
