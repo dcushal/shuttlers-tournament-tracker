@@ -276,7 +276,8 @@ const App: React.FC = () => {
 
   const deleteHOF = (id: string) => {
     if (confirm("Are you sure you want to remove this legend from the Hall of Fame?")) {
-      setHallOfFame(prev => prev.filter(entry => entry.id !== id));
+      // Fix: updateHallOfFame hook expects an array, not a function updater
+      setHallOfFame(hallOfFame.filter(entry => entry.id !== id));
     }
   };
 
