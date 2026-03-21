@@ -71,7 +71,9 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
       name: newPlayerName.trim(),
       points: newPlayerPoints,
       rank: players.length + 1,
-      previousRank: players.length + 1
+      previousRank: players.length + 1,
+      type: 'member',
+      isCheckedIn: false
     };
     // Use the hook's addPlayer which handles Supabase sync + re-ranking
     hookAddPlayer(player);
