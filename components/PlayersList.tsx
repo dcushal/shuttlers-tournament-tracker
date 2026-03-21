@@ -13,6 +13,7 @@ interface Props {
 
 const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user, checkedInIds, onToggleCheckIn }) => {
   const [newPlayerName, setNewPlayerName] = useState('');
+  const [newPlayerPoints, setNewPlayerPoints] = useState(10);
 
   const playerStats = useMemo(() => {
     const stats: Record<string, { form: ('W' | 'L')[], titles: number }> = {};
@@ -66,16 +67,25 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user, 
     const player: Player = {
       id: crypto.randomUUID(),
       name: newPlayerName.trim(),
-      points: 0,
+      points: newPlayerPoints,
       rank: players.length + 1,
       previousRank: players.length + 1
     };
-    setPlayers(prev => [...prev, player]);
+    // Add player and re-sort by points, re-assign ranks
+    const updatedPlayers = [...players, player]
+      .sort((a, b) => b.points - a.points)
+      .map((p, i) => ({ ...p, rank: i + 1, previousRank: p.rank }));
+    setPlayers(updatedPlayers);
     setNewPlayerName('');
+    setNewPlayerPoints(10);
   };
 
   const removePlayer = (id: string) => {
-    setPlayers(prev => prev.filter(p => p.id !== id));
+    // Remove player and re-sort by points, re-assign ranks
+    const updatedPlayers = players.filter(p => p.id !== id)
+      .sort((a, b) => b.points - a.points)
+      .map((p, i) => ({ ...p, rank: i + 1, previousRank: p.rank }));
+    setPlayers(updatedPlayers);
   };
 
   return (
@@ -88,7 +98,7 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user, 
       </div>
 
       {user.role === 'admin' && (
-        <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-3xl shadow-xl">
+        <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-3xl shadow-xl space-y-3">
           <div className="relative">
             <input
               type="text"
@@ -104,6 +114,17 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user, 
             >
               <Plus size={20} strokeWidth={3} />
             </button>
+          </div>
+          <div className="flex items-center gap-3 px-1">
+            <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest whitespace-nowrap">Starting Pts</label>
+            <input
+              type="number"
+              value={newPlayerPoints}
+              onChange={(e) => setNewPlayerPoints(Math.max(0, parseInt(e.target.value) || 0))}
+              min={0}
+              className="w-20 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-center font-black text-sm focus:outline-none focus:border-green-500 transition-all"
+            />
+            <span className="text-[9px] text-zinc-600 font-medium">Default: 10 (adjust for pro players)</span>
           </div>
         </div>
       )}

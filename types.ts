@@ -1,4 +1,3 @@
-
 export interface Player {
   id: string;
   name: string;
@@ -6,6 +5,7 @@ export interface Player {
   rank: number;
   previousRank: number;
   isCheckedIn?: boolean;
+  type?: 'member' | 'guest'; // New field for casual mode
 }
 
 export interface Team {
@@ -57,12 +57,21 @@ export interface Transaction {
 
 export interface CasualMatch {
   id: string;
-  team1: Player[];
-  team2: Player[];
-  score1: number;
-  score2: number;
   date: string;
+  teamA: {
+    player1Id: string;
+    player2Id: string;
+    score: number;
+  };
+  teamB: {
+    player1Id: string;
+    player2Id: string;
+    score: number;
+  };
+  winner: 'A' | 'B';
+  loggedByUserId?: string;
 }
+
 export interface HallOfFameEntry {
   id: string;
   teamName: string;

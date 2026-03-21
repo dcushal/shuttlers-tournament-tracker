@@ -2,39 +2,49 @@
 import React from 'react';
 import Logo from './Logo';
 
-import { LogOut } from 'lucide-react';
+import { LogOut, ArrowLeft, Trophy, Activity } from 'lucide-react';
 
 interface Props {
   onLogout?: () => void;
+  onBackToModes?: () => void;
   user?: { role: 'admin' | 'member'; name: string };
+  activeTab?: string;
+  setActiveTab?: (tab: any) => void;
+  mode?: 'casual' | 'tournament' | null;
 }
 
-const Header: React.FC<Props> = ({ onLogout, user }) => {
+const Header: React.FC<Props> = ({ onLogout, onBackToModes, user, mode }) => {
   return (
-    <header className="bg-zinc-900 border-b border-green-900/30 py-4 px-6 sticky top-0 z-40 backdrop-blur-md bg-opacity-80">
-      <div className="flex items-center justify-between max-w-lg mx-auto">
+    <header className="bg-black/50 py-4 z-40">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <Logo className="w-10 h-10" />
-          <div>
-            <h1 className="text-xl font-bold text-white leading-tight tracking-tight">8:30 <span className="text-green-500">Shuttlers</span></h1>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-[0.2em] font-black">{user ? `Hi, ${user.name}` : 'Official Club App'}</p>
+          {onBackToModes && (
+            <button
+              onClick={onBackToModes}
+              className="w-12 h-12 bg-zinc-900/50 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white transition-all active:scale-90"
+            >
+              <ArrowLeft size={20} />
+            </button>
+          )}
+          <div className="flex items-center gap-4 ml-1">
+            <Logo className="w-10 h-10" />
+            <div>
+              <h1 className="text-2xl font-black text-white leading-none tracking-tighter uppercase">SHUTTLERS</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="w-2.5 h-2.5 bg-green-500 rounded-full shadow-[0_0_8px_#22c55e]"></div>
+                <span className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-widest">{user?.name || 'Guest'}</span>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right hidden sm:block">
-            <div className="flex items-center gap-1 justify-end">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></div>
-              <p className="text-xs text-green-400 font-black uppercase">Live</p>
-            </div>
-            <p className="text-[10px] text-zinc-500 font-bold">20:30 - 22:30</p>
-          </div>
+
+        <div className="flex items-center gap-3">
           {onLogout && (
             <button
               onClick={onLogout}
-              className="p-2 bg-zinc-800 rounded-lg text-zinc-400 hover:text-white hover:bg-red-500/20 active:scale-95 transition-all"
-              title="Logout"
+              className="w-12 h-12 bg-zinc-900/50 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-500 hover:text-red-500 active:scale-90 transition-all"
             >
-              <LogOut size={16} />
+              <LogOut size={20} />
             </button>
           )}
         </div>

@@ -62,14 +62,15 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
 
             <div className="grid grid-cols-1 gap-3">
                 {sortedPlayers.map((player, index) => {
+                    const captainCount = Math.floor(sortedPlayers.length / 2);
                     const displayRank = index + 1;
                     const rankDiff = player.previousRank - displayRank;
-                    const isPromotionZone = index === 4; // After rank 5
+                    const isPromotionZone = index === captainCount - 1; // Dynamic: after top half
 
                     return (
                         <React.Fragment key={player.id}>
                             <div
-                                className={`relative overflow-hidden rounded-3xl p-5 border transition-all ${index < 5 ? 'bg-zinc-900 border-green-500/20' : 'bg-zinc-950 border-zinc-900'
+                                className={`relative overflow-hidden rounded-3xl p-5 border transition-all ${index < captainCount ? 'bg-zinc-900 border-green-500/20' : 'bg-zinc-950 border-zinc-900'
                                     }`}
                             >
                                 {/* Rank Indicator */}
@@ -79,7 +80,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
 
                                 <div className="flex items-center gap-5 relative z-10">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black shadow-lg ${index === 0 ? 'bg-green-500 text-zinc-950' :
-                                        index < 5 ? 'bg-zinc-800 text-white' :
+                                        index < captainCount ? 'bg-zinc-800 text-white' :
                                             'bg-zinc-900 text-zinc-500'
                                         }`}>
                                         {index === 0 ? <Crown size={28} strokeWidth={3} /> : displayRank}
@@ -98,7 +99,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                                             )}
                                         </div>
                                         <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
-                                            {index < 5 ? 'CAPTAIN' : 'CHALLENGER'} • {
+                                            {index < captainCount ? 'CAPTAIN' : 'CHALLENGER'} • {
                                                 playerPerformanceStats[player.id].matches > 0
                                                     ? `${((playerPerformanceStats[player.id].wins / playerPerformanceStats[player.id].matches) * 100).toFixed(0)}% WIN RATE`
                                                     : '0% WIN RATE'

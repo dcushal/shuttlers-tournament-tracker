@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Player, Tournament, Team, Match, Transaction, HallOfFameEntry } from './types';
-import { usePlayers, useTournaments, useTransactions, useHallOfFame } from './hooks/useSupabase';
+import { usePlayers, useTournaments, useTransactions, useHallOfFame, useCasualMatches } from './hooks/useSupabase';
 import { supabase } from './lib/supabase';
 import Dashboard from './components/Dashboard';
 import PlayersList from './components/PlayersList';
@@ -8,10 +8,16 @@ import TournamentManager from './components/TournamentManager';
 import History from './components/History';
 import Insights from './components/Insights';
 import Treasury from './components/Treasury';
+import ModeSelector from './components/ModeSelector';
 import Header from './components/Header';
 import Rankings from './components/Rankings';
 import Login from './components/Login';
-import { Trophy, Users, LayoutDashboard, Crown, Lightbulb, Wallet } from 'lucide-react';
+import CasualHome from './components/CasualHome';
+import LogMatch from './components/LogMatch';
+import CasualStats from './components/CasualStats';
+import CasualLeaderboard from './components/CasualLeaderboard';
+import MatchHistory from './components/MatchHistory';
+import { Trophy, Users, LayoutDashboard, Crown, Lightbulb, Wallet, Activity, History as HistoryIcon, BarChart2, Plus } from 'lucide-react';
 import { recalculatePlayerStats } from './utils/rankingSystem';
 
 const INITIAL_RANKINGS: { name: string; points: number }[] = [
@@ -37,7 +43,20 @@ const INITIAL_HALL_OF_FAME: HallOfFameEntry[] = [
 ];
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'players' | 'tournament' | 'rankings' | 'insights' | 'treasury'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'rankings' | 'history' | 'treasury' | 'tournament' | 'players' | 'insights'>('dashboard');
+  const [casualTab, setCasualTab] = useState<'home' | 'log' | 'stats' | 'leaderboard' | 'history'>('home');
+  const [mode, setMode] = useState<'casual' | 'tournament' | null>(null);
+
+  // Load mode from localStorage if available
+  useEffect(() => {
+    const savedMode = localStorage.getItem('shuttlers_mode') as 'casual' | 'tournament' | null;
+    if (savedMode) setMode(savedMode);
+  }, []);
+
+  const handleModeSelect = (newMode: 'casual' | 'tournament') => {
+    setMode(newMode);
+    localStorage.setItem('shuttlers_mode', newMode);
+  };
 
   // Auth State
   const [user, setUser] = useState<{ role: 'admin' | 'member'; name: string } | null>(() => {
@@ -49,8 +68,10 @@ const App: React.FC = () => {
   const {
     players,
     setPlayers,
+    addPlayer,
     toggleCheckIn,
-    loading: playersLoading
+    loading: playersLoading,
+    refetch: refreshPlayers
   } = usePlayers(() => {
     const saved = localStorage.getItem('shuttlers_players');
     let loadedPlayers: Player[] = [];
@@ -58,7 +79,10 @@ const App: React.FC = () => {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed.length > 0) {
-        loadedPlayers = parsed.map((p: any) => {
+        // Filter out corrupted data (strings or nulls) from localStorage
+        const validPlayers = parsed.filter((p: any) => typeof p === 'object' && p !== null && p.name);
+
+        loadedPlayers = validPlayers.map((p: any) => {
           const initial = INITIAL_RANKINGS.find(ir => ir.name.toLowerCase() === p.name.toLowerCase());
           const hasPoints = typeof p.points === 'number' && !isNaN(p.points);
           const points = hasPoints ? p.points : (initial ? initial.points : 0);
@@ -94,9 +118,9 @@ const App: React.FC = () => {
   const {
     tournaments,
     setTournaments,
-    createTournament: hookCreateTournament,
-    updateTournament: hookUpdateTournament,
-    deleteTournament: supabaseDeleteTournament
+    createTournament,
+    updateTournament,
+    deleteTournament
   } = useTournaments(() => {
     const saved = localStorage.getItem('shuttlers_tournaments');
     return saved ? JSON.parse(saved) : [];
@@ -112,10 +136,22 @@ const App: React.FC = () => {
 
   const {
     hallOfFame,
-    setHallOfFame
+    setHallOfFame,
+    loading: hofLoading
   } = useHallOfFame(() => {
     const saved = localStorage.getItem('shuttlers_hof');
     return saved ? JSON.parse(saved) : INITIAL_HALL_OF_FAME;
+  });
+
+  const {
+    matches: casualMatches,
+    addMatch: addCasualMatch,
+    deleteMatch: deleteCasualMatch,
+    loading: casualLoading,
+    refetch: refreshMatches
+  } = useCasualMatches(() => {
+    const saved = localStorage.getItem('shuttlers_casual_matches');
+    return saved ? JSON.parse(saved) : [];
   });
 
   // Derived state for checked-in players (synced via Supabase)
@@ -139,14 +175,25 @@ const App: React.FC = () => {
     localStorage.setItem('shuttlers_hof', JSON.stringify(hallOfFame));
   }, [hallOfFame]);
 
-
-
   useEffect(() => {
     if (user) {
       localStorage.setItem('shuttlers_user', JSON.stringify(user));
     }
   }, [user]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('shuttlers_user');
+    setUser(null);
+  };
+
+  // User check MUST come before mode check so logout always shows Login
+  if (!user) {
+    return <Login onLogin={(role, name) => setUser({ role, name })} players={players} />;
+  }
+
+  if (!mode) {
+    return <ModeSelector onSelect={handleModeSelect} onLogout={handleLogout} userName={user?.name} />;
+  }
   const handleToggleCheckIn = (id: string) => {
     const player = players.find(p => p.id === id);
     if (player) {
@@ -156,40 +203,27 @@ const App: React.FC = () => {
 
   const activeTournament = tournaments.find(t => t.status === 'active');
 
-  const updateActiveTournament = (updated: Tournament) => {
-    hookUpdateTournament(updated);
+  const handleUpdateTournament = (updatedTournament: Tournament) => {
+    updateTournament(updatedTournament);
   };
 
-  const createTournament = (newTournament: Tournament) => {
-    hookCreateTournament(newTournament);
+  const createNewTournament = (newTournament: Tournament) => {
+    createTournament(newTournament);
   };
 
-
-
-  // ... (imports remain the same)
-
-  // ... (inside App component)
-
-  const completeTournament = (id: string) => {
-    const tournament = tournaments.find(t => t.id === id);
+  const handleCompleteTournament = async (tournamentId: string) => {
+    const tournament = tournaments.find(t => t.id === tournamentId);
     if (!tournament) return;
 
     // 1. Mark tournament as completed locally first
     const updatedTournament = { ...tournament, status: 'completed' as const };
-    const updatedTournaments = tournaments.map(t => t.id === id ? updatedTournament : t);
+    const updatedTournaments = tournaments.map(t => t.id === tournamentId ? updatedTournament : t);
 
     // 2. Recalculate EVERYTHING based on history
     const reRankedPlayers = recalculatePlayerStats(players, updatedTournaments);
 
     // 3. Update State & Supabase
     setPlayers(reRankedPlayers);
-
-    // Update players in Supabase (the hook handles the upsert loop)
-    // We need to cast back to Player[] because recalculate returns the shape but maybe slight variations? 
-    // Actually the shape matches.
-    // NOTE: We need to access the 'updatePlayers' function from usePlayers hook, but it is currently named 'setPlayers' in the destructuring.
-    // The setPlayers from usePlayers ALREADY calls supabase upsert. 
-    // So setPlayers(reRankedPlayers) above handles the DB sync!
 
     // 4. Update Hall of Fame
     const finalMatch = tournament.matches.find(m => m.phase === 'finals' && m.isCompleted);
@@ -208,10 +242,11 @@ const App: React.FC = () => {
     }
 
     setTournaments(updatedTournaments);
-    hookUpdateTournament(updatedTournament);
+    updateTournament(updatedTournament); // Using the hook's updateTournament
   };
 
-  const deleteTournament = (id: string) => {
+
+  const handleDeleteTournament = async (id: string) => {
     if (confirm("Are you sure you want to delete this tournament entry? This will permanently affect rankings and stats.")) {
       // 1. Identify the tournament to be deleted
       const tournamentToDelete = tournaments.find(t => t.id === id);
@@ -256,7 +291,7 @@ const App: React.FC = () => {
       }
 
       // 6. Delete Tournament from Supabase
-      supabaseDeleteTournament(id);
+      deleteTournament(id);
     }
   };
 
@@ -281,133 +316,217 @@ const App: React.FC = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('shuttlers_user');
-    setUser(null);
+
+  const renderCasualContent = () => {
+    switch (casualTab) {
+      case 'home':
+        return <CasualHome onSetTab={setCasualTab} activeTab={casualTab} onBack={() => setMode(null)} players={players} matches={casualMatches} currentUser={user} />;
+      case 'log':
+        // Fix: LogMatch returns a string name, but addPlayer expects a Player object
+        const handleAddGuest = (name: string) => {
+          const newGuest: Player = {
+            id: crypto.randomUUID(),
+            name: name,
+            points: 0,
+            rank: 999, // Guests don't have a rank
+            previousRank: 999,
+            type: 'guest'
+          };
+          addPlayer(newGuest);
+        };
+        return <LogMatch players={players} onSave={addCasualMatch} onAddGuest={handleAddGuest} onCancel={() => setCasualTab('home')} currentUserId={user.name} />;
+      case 'stats':
+        return <CasualStats players={players} matches={casualMatches} currentUser={user} onBack={() => setCasualTab('home')} />;
+      case 'leaderboard':
+        return <CasualLeaderboard players={players} matches={casualMatches} onBack={() => setCasualTab('home')} />;
+      case 'history':
+        const handleRefresh = () => {
+          refreshPlayers();
+          refreshMatches();
+        };
+        return <MatchHistory matches={casualMatches} players={players} onDelete={deleteCasualMatch} onBack={() => setCasualTab('home')} onRefresh={handleRefresh} currentUser={user} />;
+      default:
+        return <CasualHome onSetTab={setCasualTab} activeTab={casualTab} onBack={() => setMode(null)} />;
+    }
   };
 
-  if (!user) {
-    return <Login onLogin={(role, name) => setUser({ role, name })} players={players} />;
+  if (mode === 'casual') {
+    const handleCasualBack = () => {
+      if (casualTab === 'home') {
+        setMode(null);
+      } else {
+        setCasualTab('home');
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-black text-white font-sans selection:bg-green-500/30">
+        <div className="max-w-md mx-auto min-h-screen flex flex-col relative px-4 pt-6">
+          <Header onBackToModes={handleCasualBack} onLogout={handleLogout} user={user} mode={mode} />
+          <main className="flex-1 mt-6 mb-[100px]">
+            {renderCasualContent()}
+          </main>
+
+          {/* Casual Bottom Nav */}
+          <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-zinc-900 pb-8 pt-4 px-6 z-50">
+            <div className="max-w-md mx-auto flex items-center justify-between">
+              <button
+                onClick={() => setCasualTab('home')}
+                className={`flex flex-col items-center gap-1 transition-all ${casualTab === 'home' ? 'text-green-500 scale-110' : 'text-zinc-600'}`}
+              >
+                <Activity size={20} strokeWidth={casualTab === 'home' ? 3 : 2} />
+                <span className="text-[8px] font-black uppercase tracking-widest">Home</span>
+              </button>
+              <button
+                onClick={() => setCasualTab('leaderboard')}
+                className={`flex flex-col items-center gap-1 transition-all ${casualTab === 'leaderboard' ? 'text-yellow-500 scale-110' : 'text-zinc-600'}`}
+              >
+                <Trophy size={20} strokeWidth={casualTab === 'leaderboard' ? 3 : 2} />
+                <span className="text-[8px] font-black uppercase tracking-widest">Ranks</span>
+              </button>
+              <button
+                onClick={() => setCasualTab('log')}
+                className="relative -top-8 w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center text-zinc-950 shadow-2xl shadow-green-500/20 active:scale-90 transition-transform"
+              >
+                <Plus size={28} strokeWidth={3} />
+              </button>
+              <button
+                onClick={() => setCasualTab('stats')}
+                className={`flex flex-col items-center gap-1 transition-all ${casualTab === 'stats' ? 'text-blue-500 scale-110' : 'text-zinc-600'}`}
+              >
+                <BarChart2 size={20} strokeWidth={casualTab === 'stats' ? 3 : 2} />
+                <span className="text-[8px] font-black uppercase tracking-widest">Stats</span>
+              </button>
+              <button
+                onClick={() => setCasualTab('history')}
+                className={`flex flex-col items-center gap-1 transition-all ${casualTab === 'history' ? 'text-purple-500 scale-110' : 'text-zinc-600'}`}
+              >
+                <HistoryIcon size={20} strokeWidth={casualTab === 'history' ? 3 : 2} />
+                <span className="text-[8px] font-black uppercase tracking-widest">Logs</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
+  // Tournament Mode (Existing Layout)
+  const tournamentPlayers = players.filter(p => p.type !== 'guest');
+
   return (
-    <div className="min-h-screen bg-zinc-950 pb-32">
-      <Header onLogout={handleLogout} user={user} />
+    <div className="min-h-screen bg-black text-white font-sans selection:bg-green-500/30">
+      <div className="max-w-md mx-auto min-h-screen flex flex-col relative px-4 pt-6">
+        <Header activeTab={activeTab} setActiveTab={setActiveTab} onBackToModes={() => setMode(null)} onLogout={handleLogout} user={user} mode={mode} />
 
-      <main className="container mx-auto px-4 pt-4 max-w-lg">
-        {activeTab === 'dashboard' && (
-          <Dashboard
-            activeTournament={activeTournament}
-            tournaments={tournaments}
-            players={players}
-            transactions={transactions}
+        <main className="flex-1 mt-6 mb-[100px] overflow-hidden">
+          {activeTab === 'dashboard' && (
+            <Dashboard
+              players={tournamentPlayers}
+              tournaments={tournaments}
+              activeTournament={activeTournament}
+              transactions={transactions}
+              hallOfFame={hallOfFame}
+              user={user}
+              onNavigate={setActiveTab}
+              onResetData={resetData}
+              onDeleteHOF={deleteHOF}
+            />
+          )}
 
-            onNavigate={(tab) => setActiveTab(tab)}
-            onResetData={resetData}
-            user={user}
-            hallOfFame={hallOfFame}
-            onDeleteHOF={deleteHOF}
-          />
-        )}
+          {activeTab === 'rankings' && (
+            <Rankings players={tournamentPlayers} tournaments={tournaments} />
+          )}
 
-        {activeTab === 'players' && (
-          <PlayersList
-            players={players}
-            setPlayers={setPlayers}
-            tournaments={tournaments}
-            user={user}
-            checkedInIds={checkedInIds}
-            onToggleCheckIn={handleToggleCheckIn}
-          />
-        )}
+          {activeTab === 'history' && (
+            <History tournaments={tournaments} onDelete={handleDeleteTournament} />
+          )}
 
-        {activeTab === 'tournament' && (
-          <TournamentManager
-            players={players}
-            checkedInIds={checkedInIds}
-            tournaments={tournaments}
-            activeTournament={activeTournament}
-            onCreate={createTournament}
-            onUpdate={updateActiveTournament}
-            onComplete={completeTournament}
-            onEndSession={() => setActiveTab('rankings')}
-            user={user}
-          />
-        )}
+          {activeTab === 'treasury' && (
+            <Treasury
+              players={tournamentPlayers}
+              checkedInIds={checkedInIds}
+              transactions={transactions}
+              setTransactions={setTransactions}
+              user={user}
+            />
+          )}
 
-        {activeTab === 'rankings' && (
-          <Rankings players={players} tournaments={tournaments} />
-        )}
+          {activeTab === 'tournament' && (
+            <TournamentManager
+              players={tournamentPlayers}
+              checkedInIds={checkedInIds}
+              tournaments={tournaments}
+              activeTournament={activeTournament}
+              onCreate={createNewTournament}
+              onUpdate={handleUpdateTournament}
+              onComplete={handleCompleteTournament}
+              onEndSession={() => setActiveTab('rankings')}
+              user={user}
+            />
+          )}
 
-        {activeTab === 'insights' && (
-          <Insights
-            tournaments={tournaments.filter(t => t.status === 'completed')}
-            hallOfFame={hallOfFame}
-            onDeleteTournament={deleteTournament}
-            isAdmin={user?.role === 'admin'}
-          />
-        )}
+          {activeTab === 'players' && (
+            <PlayersList
+              players={tournamentPlayers}
+              setPlayers={setPlayers}
+              tournaments={tournaments}
+              user={user}
+              checkedInIds={checkedInIds}
+              onToggleCheckIn={handleToggleCheckIn}
+            />
+          )}
 
-        {activeTab === 'treasury' && (
-          <Treasury
-            players={players}
-            checkedInIds={checkedInIds}
-            transactions={transactions}
-            setTransactions={setTransactions}
-            user={user}
-          />
-        )}
-        <div className="pb-32 text-center">
-          <p className="text-[10px] font-bold text-zinc-700 uppercase tracking-[0.3em] opacity-50">mini stadium, Thane</p>
-        </div>
-      </main>
+          {activeTab === 'insights' && (
+            <Insights
+              tournaments={tournaments}
+              hallOfFame={hallOfFame}
+              onDeleteTournament={handleDeleteTournament}
+              isAdmin={user.role === 'admin'}
+            />
+          )}
+        </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-zinc-900/90 backdrop-blur-md border-t border-zinc-800 px-4 pt-3 pb-8 z-50">
-        <div className="grid grid-cols-6 gap-1 max-w-lg mx-auto">
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`flex flex-col items-center gap-1 py-1 ${activeTab === 'dashboard' ? 'text-green-500' : 'text-zinc-500'}`}
-          >
-            <LayoutDashboard size={20} />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Home</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('players')}
-            className={`flex flex-col items-center gap-1 py-1 ${activeTab === 'players' ? 'text-green-500' : 'text-zinc-500'}`}
-          >
-            <Users size={20} />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Roster</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('tournament')}
-            className={`flex flex-col items-center gap-1 py-1 ${activeTab === 'tournament' ? 'text-green-500' : 'text-zinc-500'}`}
-          >
-            <Trophy size={20} />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Play</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('treasury')}
-            className={`flex flex-col items-center gap-1 py-1 ${activeTab === 'treasury' ? 'text-green-500' : 'text-zinc-500'}`}
-          >
-            <Wallet size={20} />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Funds</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('rankings')}
-            className={`flex flex-col items-center gap-1 py-1 ${activeTab === 'rankings' ? 'text-green-500' : 'text-zinc-500'}`}
-          >
-            <Crown size={20} />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Rank</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('insights')}
-            className={`flex flex-col items-center gap-1 py-1 ${activeTab === 'insights' ? 'text-green-500' : 'text-zinc-500'}`}
-          >
-            <Lightbulb size={20} />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Stats</span>
-          </button>
-        </div>
-      </nav>
+        <nav className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-zinc-900 pb-8 pt-4 px-6 z-50">
+          <div className="max-w-md mx-auto flex items-center justify-between">
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'dashboard' ? 'text-green-500 scale-110' : 'text-zinc-600'}`}
+            >
+              <LayoutDashboard size={20} strokeWidth={activeTab === 'dashboard' ? 3 : 2} />
+              <span className="text-[8px] font-black uppercase tracking-widest">Dash</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('players')}
+              className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'players' ? 'text-green-500 scale-110' : 'text-zinc-600'}`}
+            >
+              <Users size={20} strokeWidth={activeTab === 'players' ? 3 : 2} />
+              <span className="text-[8px] font-black uppercase tracking-widest">Roster</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('rankings')}
+              className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'rankings' ? 'text-green-500 scale-110' : 'text-zinc-600'}`}
+            >
+              <Crown size={20} strokeWidth={activeTab === 'rankings' ? 3 : 2} />
+              <span className="text-[8px] font-black uppercase tracking-widest">Ranks</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('insights')}
+              className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'insights' ? 'text-green-500 scale-110' : 'text-zinc-600'}`}
+            >
+              <Lightbulb size={20} strokeWidth={activeTab === 'insights' ? 3 : 2} />
+              <span className="text-[8px] font-black uppercase tracking-widest">Stats</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('treasury')}
+              className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'treasury' ? 'text-green-500 scale-110' : 'text-zinc-600'}`}
+            >
+              <Wallet size={20} strokeWidth={activeTab === 'treasury' ? 3 : 2} />
+              <span className="text-[8px] font-black uppercase tracking-widest">Funds</span>
+            </button>
+          </div>
+        </nav>
+      </div>
     </div>
   );
 };

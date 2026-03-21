@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import { Player, Tournament, Team, Match, Transaction, HallOfFameEntry } from '../types';
+import { Player, Tournament, Team, Match, Transaction, HallOfFameEntry, CasualMatch } from '../types';
 
 // ============ PLAYERS HOOK ============
 export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
@@ -30,7 +30,8 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                     points: p.points,
                     rank: p.rank,
                     previousRank: p.previous_rank,
-                    isCheckedIn: p.is_checked_in
+                    isCheckedIn: p.is_checked_in,
+                    type: p.type
                 })));
             }
         } catch (err) {
@@ -65,7 +66,8 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                         points: p.points,
                         rank: p.rank,
                         previous_rank: p.previousRank,
-                        is_checked_in: p.isCheckedIn
+                        is_checked_in: p.isCheckedIn,
+                        type: p.type
                     })),
                     { onConflict: 'id' }
                 );
@@ -533,3 +535,101 @@ export function useHallOfFame(initialHallOfFame: HallOfFameEntry[] | (() => Hall
 
     return { hallOfFame, setHallOfFame: updateHallOfFame, loading, error, refetch: fetchHallOfFame };
 }
+
+// ============ CASUAL MATCHES HOOK ============
+export function useCasualMatches(initialMatches: CasualMatch[] | (() => CasualMatch[])) {
+    const [matches, setMatches] = useState<CasualMatch[]>(initialMatches);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchMatches = useCallback(async () => {
+        if (!isSupabaseConfigured() || !supabase) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from('casual_matches')
+                .select('*')
+                .order('date', { ascending: false });
+
+            if (error) throw error;
+
+            if (data) {
+                setMatches(data.map(m => ({
+                    id: m.id,
+                    date: m.date,
+                    teamA: {
+                        player1Id: m.team_a_player1_id,
+                        player2Id: m.team_a_player2_id,
+                        score: m.team_a_score
+                    },
+                    teamB: {
+                        player1Id: m.team_b_player1_id,
+                        player2Id: m.team_b_player2_id,
+                        score: m.team_b_score
+                    },
+                    winner: m.winner_team.toUpperCase() as 'A' | 'B',
+                    loggedByUserId: m.logged_by_user_id
+                })));
+            }
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to fetch casual matches');
+            console.error('Error fetching casual matches:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchMatches();
+    }, [fetchMatches]);
+
+    const addMatch = useCallback(async (match: CasualMatch) => {
+        setMatches(prev => [match, ...prev]);
+
+        if (!isSupabaseConfigured() || !supabase) return;
+
+        try {
+            const { error } = await supabase
+                .from('casual_matches')
+                .insert({
+                    id: match.id,
+                    date: match.date,
+                    team_a_player1_id: match.teamA.player1Id,
+                    team_a_player2_id: match.teamA.player2Id,
+                    team_a_score: match.teamA.score,
+                    team_b_player1_id: match.teamB.player1Id,
+                    team_b_player2_id: match.teamB.player2Id,
+                    team_b_score: match.teamB.score,
+                    winner_team: match.winner.toLowerCase(),
+                    logged_by_user_id: match.loggedByUserId
+                });
+
+            if (error) throw error;
+        } catch (err) {
+            console.error('Error adding casual match:', err);
+        }
+    }, []);
+
+    const deleteMatch = useCallback(async (id: string) => {
+        setMatches(prev => prev.filter(m => m.id !== id));
+
+        if (!isSupabaseConfigured() || !supabase) return;
+
+        try {
+            const { error } = await supabase
+                .from('casual_matches')
+                .delete()
+                .eq('id', id);
+
+            if (error) throw error;
+        } catch (err) {
+            console.error('Error deleting casual match:', err);
+        }
+    }, []);
+
+    return { matches, addMatch, deleteMatch, loading, error, refetch: fetchMatches };
+}
+

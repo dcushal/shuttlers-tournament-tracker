@@ -29,7 +29,7 @@ export function recalculatePlayerStats(players: Player[], tournaments: Tournamen
         persons.forEach(p => {
             const initial = INITIAL_RANKINGS.find(ir => ir.name.toLowerCase() === p.name.toLowerCase());
             currentStats[p.id] = {
-                points: initial ? initial.points : 0,
+                points: initial ? initial.points : (p.points || 10),
                 matches: 0,
                 wins: 0,
                 totalDiff: 0
