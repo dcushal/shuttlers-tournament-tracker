@@ -69,6 +69,7 @@ const App: React.FC = () => {
     players,
     setPlayers,
     addPlayer,
+    deletePlayer,
     toggleCheckIn,
     loading: playersLoading,
     refetch: refreshPlayers
@@ -470,6 +471,8 @@ const App: React.FC = () => {
             <PlayersList
               players={tournamentPlayers}
               setPlayers={setPlayers}
+              addPlayer={addPlayer}
+              deletePlayer={deletePlayer}
               tournaments={tournaments}
               user={user}
               checkedInIds={checkedInIds}

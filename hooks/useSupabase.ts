@@ -80,14 +80,20 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
 
     // Add a new player
     const addPlayer = useCallback(async (player: Player) => {
-        const newPlayers = [...players, player];
-        await updatePlayers(newPlayers);
+        // Merge with ALL current players (not just filtered), re-sort, re-rank
+        const merged = [...players, player]
+            .sort((a, b) => b.points - a.points)
+            .map((p, i) => ({ ...p, rank: i + 1, previousRank: p.rank || i + 1 }));
+        await updatePlayers(merged);
     }, [players, updatePlayers]);
 
     // Delete a player
     const deletePlayer = useCallback(async (playerId: string) => {
-        const newPlayers = players.filter(p => p.id !== playerId);
-        await updatePlayers(newPlayers);
+        // Remove, re-sort, re-rank
+        const remaining = players.filter(p => p.id !== playerId)
+            .sort((a, b) => b.points - a.points)
+            .map((p, i) => ({ ...p, rank: i + 1, previousRank: p.rank || i + 1 }));
+        await updatePlayers(remaining);
 
         if (isSupabaseConfigured() && supabase) {
             try {

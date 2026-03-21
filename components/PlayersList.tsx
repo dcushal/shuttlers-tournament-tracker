@@ -5,13 +5,15 @@ import { Plus, Trash2, UserPlus, Trophy, CheckCircle2 } from 'lucide-react';
 interface Props {
   players: Player[];
   setPlayers: React.Dispatch<React.SetStateAction<Player[]>>;
+  addPlayer: (player: Player) => Promise<void>;
+  deletePlayer: (playerId: string) => Promise<void>;
   tournaments: Tournament[];
   user: { role: 'admin' | 'member'; name: string };
   checkedInIds: string[];
   onToggleCheckIn: (id: string) => void;
 }
 
-const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user, checkedInIds, onToggleCheckIn }) => {
+const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddPlayer, deletePlayer: hookDeletePlayer, tournaments, user, checkedInIds, onToggleCheckIn }) => {
   const [newPlayerName, setNewPlayerName] = useState('');
   const [newPlayerPoints, setNewPlayerPoints] = useState(10);
 
@@ -71,21 +73,15 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, tournaments, user, 
       rank: players.length + 1,
       previousRank: players.length + 1
     };
-    // Add player and re-sort by points, re-assign ranks
-    const updatedPlayers = [...players, player]
-      .sort((a, b) => b.points - a.points)
-      .map((p, i) => ({ ...p, rank: i + 1, previousRank: p.rank }));
-    setPlayers(updatedPlayers);
+    // Use the hook's addPlayer which handles Supabase sync + re-ranking
+    hookAddPlayer(player);
     setNewPlayerName('');
     setNewPlayerPoints(10);
   };
 
   const removePlayer = (id: string) => {
-    // Remove player and re-sort by points, re-assign ranks
-    const updatedPlayers = players.filter(p => p.id !== id)
-      .sort((a, b) => b.points - a.points)
-      .map((p, i) => ({ ...p, rank: i + 1, previousRank: p.rank }));
-    setPlayers(updatedPlayers);
+    // Use the hook's deletePlayer which handles Supabase delete + re-ranking
+    hookDeletePlayer(id);
   };
 
   return (
