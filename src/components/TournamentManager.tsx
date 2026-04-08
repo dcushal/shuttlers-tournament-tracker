@@ -25,6 +25,7 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
   const [step, setStep] = useState<1 | 2>(1);
   const [name, setName] = useState('');
   const [pointLimit, setPointLimit] = useState<11 | 15 | 21>(21);
+  const [customDate, setCustomDate] = useState('');
   const [selectedTeams, setSelectedTeams] = useState<Team[]>([]);
   const [p1Id, setP1Id] = useState('');
   const [p2Id, setP2Id] = useState('');
@@ -121,11 +122,11 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
     onCreate({
       id: crypto.randomUUID(),
       name: name || TOURNAMENT_TITLES[Math.floor(Math.random() * TOURNAMENT_TITLES.length)],
-      date: new Date().toISOString(), pointLimit, teams: selectedTeams,
+      date: customDate ? new Date(customDate).toISOString() : new Date().toISOString(), pointLimit, teams: selectedTeams,
       matches: matches.sort(() => Math.random() - 0.5),
       currentPhase: 'round-robin', status: 'active'
     });
-    setStep(1); setName(''); setSelectedTeams([]);
+    setStep(1); setName(''); setSelectedTeams([]); setCustomDate('');
   };
 
   const autoFillScores = () => {
@@ -302,6 +303,15 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
                       <button key={p} onClick={() => setPointLimit(p as any)} className={`flex-1 py-4 rounded-2xl border font-black transition-all text-sm uppercase ${pointLimit === p ? 'bg-green-500 border-green-500 text-zinc-950' : 'bg-zinc-950 border-zinc-800 text-zinc-500'}`}>{p}</button>
                     ))}
                   </div>
+                </div>
+                <div>
+                  <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2 px-1">Date (Optional)</label>
+                  <input 
+                    type="date" 
+                    value={customDate} 
+                    onChange={(e) => setCustomDate(e.target.value)} 
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-green-500 font-bold transition-all"
+                  />
                 </div>
               </div>
               <button onClick={() => setStep(2)} className="w-full bg-green-500 text-zinc-950 py-5 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2">Continue to Roster <ChevronRight size={18} /></button>
