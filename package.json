@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@supabase/supabase-js": "^2.95.2",
     "canvas-confetti": "^1.9.4",
     "date-fns": "^4.1.0",
