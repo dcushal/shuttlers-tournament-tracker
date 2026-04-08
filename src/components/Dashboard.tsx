@@ -113,7 +113,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
 
   return (
     <div className="space-y-4 pb-6">
-      <div className="bg-zinc-900 border border-green-500/20 rounded-3xl p-6 relative overflow-hidden group">
+      <div className="glass-card card-hover p-6 relative overflow-hidden group">
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl group-hover:bg-green-500/20 transition-colors"></div>
 
         <div className="flex items-start justify-between mb-8">
@@ -148,7 +148,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
       <div className="grid grid-cols-2 gap-4">
         <button
           onClick={handleMVPCelebration}
-          className="bg-zinc-900/50 border border-zinc-800 p-5 rounded-3xl group hover:border-yellow-500/30 transition-colors relative overflow-hidden text-left active:scale-95 duration-200"
+          className="glass-card-elevated p-5 rounded-3xl group hover:border-yellow-500/30 transition-colors relative overflow-hidden text-left active:scale-95 duration-200"
         >
           <div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity animate-glow-pulse"></div>
           <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-3 relative z-10">CURRENT MVP</p>
@@ -161,7 +161,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
         </button>
         <button
           onClick={() => onNavigate('insights')}
-          className="bg-zinc-900/50 border border-zinc-800 p-5 rounded-3xl group hover:border-yellow-500/30 transition-all text-left active:scale-95 duration-200 relative overflow-hidden"
+          className="glass-card-elevated p-5 rounded-3xl group hover:border-yellow-500/30 transition-all text-left active:scale-95 duration-200 relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-3 relative z-10">
@@ -179,7 +179,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
       </div>
 
       {activeTournament && (
-        <div className="bg-zinc-900 border border-green-500/20 rounded-3xl overflow-hidden shadow-2xl">
+        <div className="glass-card card-hover overflow-hidden shadow-2xl">
           <div className="bg-green-500/10 px-6 py-4 border-b border-green-500/10 flex justify-between items-center">
             <h3 className="font-black text-green-500 text-xs uppercase tracking-widest flex items-center gap-2">
               <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-glow-pulse shadow-[0_0_10px_#9ee312]"></span> LIVE: {activeTournament.name}

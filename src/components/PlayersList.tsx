@@ -102,7 +102,7 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
       </div>
 
       {user.role === 'admin' && (
-        <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-3xl shadow-xl space-y-3">
+        <div className="glass-card-elevated p-4 rounded-3xl shadow-xl space-y-3">
           <div className="relative">
             <input
               type="text"

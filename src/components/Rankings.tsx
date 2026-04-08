@@ -70,7 +70,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                     return (
                         <React.Fragment key={player.id}>
                             <div
-                                className={`relative overflow-hidden rounded-3xl p-5 border transition-all ${index < captainCount ? 'bg-zinc-900 border-green-500/20' : 'bg-zinc-950 border-zinc-900'
+                                className={`relative overflow-hidden rounded-3xl p-5 border transition-all ${index < captainCount ? 'bg-zinc-900 border-green-500/20' : 'glass-card-elevated'
                                     }`}
                             >
                                 {/* Rank Indicator */}

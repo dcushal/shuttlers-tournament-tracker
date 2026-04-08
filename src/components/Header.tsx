@@ -15,7 +15,7 @@ interface Props {
 
 const Header: React.FC<Props> = ({ onLogout, onBackToModes, user, mode }) => {
   return (
-    <header className="bg-black/50 py-4 z-40">
+    <header className="glass-card-elevated py-4 z-40">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           {onBackToModes && (
