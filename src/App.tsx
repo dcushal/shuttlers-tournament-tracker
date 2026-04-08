@@ -380,7 +380,7 @@ const App: React.FC = () => {
 
           {/* Casual Bottom Nav */}
           <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-zinc-900 pb-8 pt-4 px-6 z-50">
-            <div className="max-w-md mx-auto flex items-center justify-between">
+            <div className="max-w-md mx-auto flex items-center justify-between gap-2">
               <button
                 onClick={() => setCasualTab('home')}
                 className={`flex flex-col items-center gap-1 transition-all ${casualTab === 'home' ? 'text-green-500 scale-110' : 'text-zinc-600'}`}
@@ -491,31 +491,31 @@ const App: React.FC = () => {
         </main>
 
         <nav className="fixed bottom-0 left-0 right-0 glass-nav pb-8 pt-4 px-6 z-50">
-          <div className="max-w-md mx-auto flex items-center justify-between">
+          <div className="max-w-md mx-auto flex items-center justify-between gap-2">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`flex flex-col items-center gap-1.5 py-2 px-3 rounded-2xl transition-all ${activeTab === 'dashboard' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'dashboard' ? 'nav-item-active text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               <LayoutDashboard size={20} strokeWidth={activeTab === 'dashboard' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Dash</span>
             </button>
             <button
               onClick={() => setActiveTab('players')}
-              className={`flex flex-col items-center gap-1.5 py-2 px-3 rounded-2xl transition-all ${activeTab === 'players' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'players' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               <Users size={20} strokeWidth={activeTab === 'players' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Roster</span>
             </button>
             <button
               onClick={() => setActiveTab('rankings')}
-              className={`flex flex-col items-center gap-1.5 py-2 px-3 rounded-2xl transition-all ${activeTab === 'rankings' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'rankings' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               <Crown size={20} strokeWidth={activeTab === 'rankings' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Ranks</span>
             </button>
             <button
               onClick={() => setActiveTab('insights')}
-              className={`flex flex-col items-center gap-1.5 py-2 px-3 rounded-2xl transition-all ${activeTab === 'insights' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'insights' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
             >
               <Lightbulb size={20} strokeWidth={activeTab === 'insights' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Stats</span>
