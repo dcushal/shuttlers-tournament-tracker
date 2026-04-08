@@ -1,47 +1,133 @@
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
+/* ============================================================
+   SHUTTLERS — GLASSMORPHISM DESIGN SYSTEM
+   ============================================================ */
+
+/* ---------- Scrollbar ---------- */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(158, 227, 18, 0.3); border-radius: 10px; }
+
+/* ---------- Background Layer ---------- */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url('/bg.jpg');
+    background-size: auto 100%;
+    background-repeat: no-repeat;
+    background-position: center top;
+    filter: blur(2px) brightness(0.38) saturate(0.75);
+    z-index: -2;
+    pointer-events: none;
 }
 
-.no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+/* Dark gradient overlay on top of blurred bg */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+        160deg,
+        rgba(0, 18, 4, 0.72) 0%,
+        rgba(0, 8, 2, 0.60) 50%,
+        rgba(0, 12, 3, 0.75) 100%
+    );
+    z-index: -1;
+    pointer-events: none;
 }
 
+/* ---------- Glassmorphism Card Base ---------- */
+.liquid-card {
+    background: rgba(8, 22, 8, 0.30);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgba(158, 227, 18, 0.1);
+    border-radius: 1.5rem;
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Elevated card — slightly lighter for foreground elements */
+.liquid-card-elevated {
+    background: rgba(12, 28, 12, 0.38);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border: 1px solid rgba(158, 227, 18, 0.13);
+    border-radius: 1.5rem;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+/* Hover lift for interactive cards */
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- Bottom Navigation ---------- */
+.liquid-bottom-nav {
+    background: rgba(4, 14, 4, 0.82);
+    backdrop-filter: blur(28px) saturate(1.6);
+    -webkit-backdrop-filter: blur(28px) saturate(1.6);
+    border-top: 1px solid rgba(158, 227, 18, 0.1);
+    padding-bottom: env(safe-area-inset-bottom, 2rem);
+    padding-top: 1rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+/* Nav items */
+.liquid-nav-item {
+    color: rgba(255, 255, 255, 0.30);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.liquid-nav-item:hover {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.liquid-nav-item.active {
+    background: rgba(158, 227, 18, 0.14);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-color: rgba(158, 227, 18, 0.28);
+    color: #9ee312;
+    box-shadow: 0 0 16px rgba(158, 227, 18, 0.1), inset 0 1px 0 rgba(158, 227, 18, 0.15);
+}
+
+/* ---------- Animations ---------- */
 @keyframes breathe {
-
-    0%,
-    100% {
-        transform: scale(1);
-        opacity: 0.8;
-    }
-
-    50% {
-        transform: scale(1.05);
-        opacity: 1;
-    }
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50%       { transform: scale(1.05); opacity: 1; }
 }
-
-.animate-breathe {
-    animation: breathe 4s ease-in-out infinite;
-}
+.animate-breathe { animation: breathe 4s ease-in-out infinite; }
 
 @keyframes light-sweep {
-    0% {
-        background-position: -200% center;
-    }
-
-    100% {
-        background-position: 200% center;
-    }
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
 }
 
 .text-sweep {
-    background: linear-gradient(90deg,
-            rgba(234, 179, 8, 0.6) 0%,
-            rgba(234, 179, 8, 0.6) 40%,
-            rgb(255, 255, 255) 50%,
-            rgba(234, 179, 8, 0.6) 60%,
-            rgba(234, 179, 8, 0.6) 100%);
+    background: linear-gradient(
+        90deg,
+        rgba(234, 179, 8, 0.6) 0%,
+        rgba(234, 179, 8, 0.6) 40%,
+        rgb(255, 255, 255) 50%,
+        rgba(234, 179, 8, 0.6) 60%,
+        rgba(234, 179, 8, 0.6) 100%
+    );
     background-size: 200% auto;
     background-clip: text;
     -webkit-background-clip: text;

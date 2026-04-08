@@ -371,7 +371,7 @@ const App: React.FC = () => {
     };
 
     return (
-      <div className="min-h-screen bg-black text-white font-sans selection:bg-green-500/30">
+      <div className="min-h-screen text-white font-sans selection:bg-green-500/30">
         <div className="max-w-md mx-auto min-h-screen flex flex-col relative px-4 pt-6">
           <Header onBackToModes={handleCasualBack} onLogout={handleLogout} user={user} mode={mode} />
           <main className="flex-1 mt-6 mb-[100px]">
@@ -426,11 +426,11 @@ const App: React.FC = () => {
   const tournamentPlayers = players.filter(p => p.type !== 'guest');
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-green-500/30">
+    <div className="min-h-screen text-white font-sans selection:bg-green-500/30">
       <div className="max-w-md mx-auto min-h-screen flex flex-col relative px-4 pt-6">
         <Header activeTab={activeTab} setActiveTab={setActiveTab} onBackToModes={() => setMode(null)} onLogout={handleLogout} user={user} mode={mode} />
 
-        <main className="flex-1 mt-6 mb-[100px] overflow-hidden">
+        <main className="flex-1 mt-6 mb-[100px]">
           {activeTab === 'dashboard' && (
             <Dashboard
               players={tournamentPlayers}
@@ -490,32 +490,32 @@ const App: React.FC = () => {
           )}
         </main>
 
-        <nav className="fixed bottom-0 left-0 right-0 glass-nav pb-8 pt-4 px-6 z-50">
+        <nav className="fixed bottom-0 left-0 right-0 liquid-bottom-nav">
           <div className="max-w-md mx-auto flex items-center justify-between gap-2">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'dashboard' ? 'nav-item-active text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`liquid-nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'dashboard' ? 'active' : ''}`}
             >
               <LayoutDashboard size={20} strokeWidth={activeTab === 'dashboard' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Dash</span>
             </button>
             <button
               onClick={() => setActiveTab('players')}
-              className={`nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'players' ? 'nav-item-active text-green-400' : 'text-zinc-400'}`}
+              className={`liquid-nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'players' ? 'active' : ''}`}
             >
               <Users size={20} strokeWidth={activeTab === 'players' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Roster</span>
             </button>
             <button
               onClick={() => setActiveTab('rankings')}
-              className={`nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'rankings' ? 'nav-item-active text-green-400' : 'text-zinc-400'}`}
+              className={`liquid-nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'rankings' ? 'active' : ''}`}
             >
               <Crown size={20} strokeWidth={activeTab === 'rankings' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Ranks</span>
             </button>
             <button
               onClick={() => setActiveTab('insights')}
-              className={`nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'insights' ? 'nav-item-active text-green-400' : 'text-zinc-400'}`}
+              className={`liquid-nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'insights' ? 'active' : ''}`}
             >
               <Lightbulb size={20} strokeWidth={activeTab === 'insights' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Stats</span>

@@ -96,20 +96,20 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
     <div className="space-y-6">
       <div className="flex items-center justify-between px-2">
         <h2 className="text-xl font-black text-white uppercase tracking-tighter">PLAYER ROSTER</h2>
-        <span className="bg-zinc-900 text-zinc-400 text-[10px] px-3 py-1 rounded-full border border-zinc-800 font-black uppercase tracking-widest">
+        <span className="bg-white/5 backdrop-blur-xl text-zinc-300 text-[10px] px-3 py-1 rounded-full border border-white/10 font-black uppercase tracking-widest">
           {players.length} Active
         </span>
       </div>
 
       {user.role === 'admin' && (
-        <div className="glass-card-elevated p-4 rounded-3xl shadow-xl space-y-3">
+        <div className="liquid-card-elevated p-4 rounded-3xl shadow-xl space-y-3">
           <div className="relative">
             <input
               type="text"
               value={newPlayerName}
               onChange={(e) => setNewPlayerName(e.target.value)}
               placeholder="Registration Name..."
-              className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-white placeholder-zinc-700 focus:outline-none focus:border-green-500 font-bold transition-all"
+              className="w-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl px-5 py-4 text-white placeholder-zinc-500 focus:outline-none focus:border-green-500 font-bold transition-all"
               onKeyDown={(e) => e.key === 'Enter' && addPlayer()}
             />
             <button
@@ -126,7 +126,7 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
               value={newPlayerPoints}
               onChange={(e) => setNewPlayerPoints(Math.max(0, parseInt(e.target.value) || 0))}
               min={0}
-              className="w-20 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-white text-center font-black text-sm focus:outline-none focus:border-green-500 transition-all"
+              className="w-20 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl px-3 py-2 text-white text-center font-black text-sm focus:outline-none focus:border-green-500 transition-all"
             />
             <span className="text-[9px] text-zinc-600 font-medium">Default: 10 (adjust for pro players)</span>
           </div>
@@ -148,9 +148,9 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
               <div
                 key={player.id}
                 onClick={() => user.role === 'admin' && onToggleCheckIn(player.id)}
-                className={`flex items-center justify-between bg-zinc-900 border p-5 rounded-3xl group transition-all cursor-pointer ${isCheckedIn
-                    ? 'border-green-500/50 bg-green-500/5 shadow-[0_0_20px_rgba(34,197,94,0.1)]'
-                    : 'border-zinc-800 hover:border-zinc-700'
+                className={`flex items-center justify-between liquid-card-elevated p-5 rounded-3xl group transition-all cursor-pointer ${isCheckedIn
+                    ? 'border-green-500/50 !bg-green-500/10 shadow-[0_0_20px_rgba(34,197,94,0.1)]'
+                    : 'hover:border-green-500/20'
                   }`}
               >
                 <div className="flex items-center gap-4">
@@ -169,7 +169,7 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className={`font-black uppercase tracking-tight text-base transition-colors ${isCheckedIn ? 'text-white' : 'text-zinc-400'}`}>
+                      <span className={`font-black uppercase tracking-tight text-base transition-colors ${isCheckedIn ? 'text-white' : 'text-white/90'}`}>
                         {player.name}
                       </span>
                       {stats?.titles > 0 && (

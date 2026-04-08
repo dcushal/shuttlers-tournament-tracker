@@ -128,7 +128,7 @@ const Insights: React.FC<Props> = ({ tournaments, hallOfFame, onDeleteTournament
       </div>
 
       {/* Tip Box - Coach's Corner */}
-      <div className="bg-zinc-900 border border-green-500/20 p-6 rounded-[2rem] relative overflow-hidden">
+      <div className="liquid-card border-green-500/20 p-6 rounded-[2rem] relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4 text-green-500/10 -rotate-12 translate-x-4 -translate-y-4">
           <ShieldCheck size={100} />
         </div>
@@ -146,7 +146,7 @@ const Insights: React.FC<Props> = ({ tournaments, hallOfFame, onDeleteTournament
       </div>
 
       {/* Hall of Fame Leaders - ADDED HERE */}
-      <section className="bg-gradient-to-br from-yellow-500/10 to-transparent border border-yellow-500/20 p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl shadow-yellow-500/5">
+      <section className="liquid-card border-yellow-500/20 bg-yellow-500/5 p-8 rounded-[2.5rem] relative overflow-hidden shadow-2xl shadow-yellow-500/5">
         <div className="absolute top-0 right-0 p-6 opacity-10">
           <Crown size={80} className="text-yellow-500" />
         </div>
@@ -207,7 +207,7 @@ const Insights: React.FC<Props> = ({ tournaments, hallOfFame, onDeleteTournament
         </div>
 
         {stats.topPartnerships.length === 0 ? (
-          <div className="py-12 bg-zinc-900/50 border border-dashed border-zinc-800 rounded-3xl text-center">
+          <div className="py-12 bg-white/5 border border-dashed border-white/15 rounded-3xl text-center">
             <Handshake size={32} className="mx-auto text-zinc-800 mb-2" />
             <p className="text-zinc-600 text-[10px] font-black uppercase">Start sessions to track synergy</p>
           </div>
@@ -216,9 +216,9 @@ const Insights: React.FC<Props> = ({ tournaments, hallOfFame, onDeleteTournament
             {stats.topPartnerships.map((p, i) => (
               <div
                 key={p.key}
-                className={`group relative overflow-hidden rounded-[2rem] transition-all border ${i === 0
-                  ? 'bg-zinc-900 border-green-500/40 p-8 ring-2 ring-green-500/10'
-                  : 'bg-zinc-900/50 border-zinc-800 p-6 hover:bg-zinc-900 hover:border-zinc-700'
+                className={`group relative overflow-hidden rounded-[2rem] transition-all border liquid-card-elevated ${i === 0
+                  ? 'border-green-500/40 p-8 ring-2 ring-green-500/10'
+                  : 'border-white/10 p-6 hover:border-green-500/20'
                   }`}
               >
                 {i === 0 && (
@@ -269,7 +269,7 @@ const Insights: React.FC<Props> = ({ tournaments, hallOfFame, onDeleteTournament
 
       {/* Rivalry Radar */}
       {stats.mainRivalry && (
-        <section className="bg-zinc-950 border border-red-500/20 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+        <section className="liquid-card border-red-500/20 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 p-6 opacity-10">
             <Flame size={80} className="text-red-500" />
           </div>
@@ -293,12 +293,12 @@ const Insights: React.FC<Props> = ({ tournaments, hallOfFame, onDeleteTournament
 
       {/* Key Performance Indicators */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl space-y-1">
+        <div className="liquid-card-elevated p-6 rounded-3xl space-y-1">
           <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">GAMES TRACKED</p>
           <p className="text-3xl font-black text-white">{stats.totalMatches}</p>
           <p className="text-[8px] text-green-500 font-bold uppercase">Active History</p>
         </div>
-        <div className="bg-zinc-900/50 border border-zinc-800 p-6 rounded-3xl space-y-1">
+        <div className="liquid-card-elevated p-6 rounded-3xl space-y-1">
           <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">PEAK SCORE</p>
           <p className="text-3xl font-black text-green-500">{stats.highestScore}</p>
           <p className="text-[8px] text-zinc-600 font-bold uppercase">Session Record</p>
@@ -306,8 +306,8 @@ const Insights: React.FC<Props> = ({ tournaments, hallOfFame, onDeleteTournament
       </div>
 
       {/* Individual Win Rate Leaders */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden shadow-xl">
-        <div className="bg-zinc-950 px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
+      <div className="liquid-card-elevated rounded-3xl overflow-hidden shadow-xl">
+        <div className="bg-white/5 px-6 py-4 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Award size={18} className="text-yellow-500" />
             <h3 className="font-black text-white text-xs uppercase tracking-widest">Top Performers</h3>
@@ -337,7 +337,7 @@ const Insights: React.FC<Props> = ({ tournaments, hallOfFame, onDeleteTournament
       </div>
 
       <div className="flex flex-col items-center text-center space-y-4 pt-4">
-        <div className="w-12 h-12 bg-zinc-900 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-600">
+        <div className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-zinc-400">
           <Activity size={24} />
         </div>
         <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] max-w-[240px] leading-relaxed">

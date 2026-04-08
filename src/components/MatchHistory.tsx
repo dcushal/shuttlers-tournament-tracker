@@ -33,7 +33,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, onDelete,
                 <button
                     onClick={handleSync}
                     disabled={isRefreshing}
-                    className={`w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-700 transition-all active:scale-95 ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`w-10 h-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl flex items-center justify-center text-zinc-400 hover:text-white transition-all active:scale-95 ${isRefreshing ? 'opacity-50 cursor-not-allowed' : ''}`}
                     title="Sync with Database"
                 >
                     <RefreshCw size={18} className={isRefreshing ? 'animate-spin text-green-500' : ''} />
@@ -42,7 +42,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, onDelete,
 
             <div className="space-y-3">
                 {matches.length === 0 ? (
-                    <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-12 text-center space-y-2">
+                    <div className="liquid-card-elevated rounded-3xl p-12 text-center space-y-2">
                         <HistoryIcon size={48} className="mx-auto text-zinc-700 opacity-50" />
                         <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">No matches logged yet</p>
                     </div>
@@ -68,7 +68,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, onDelete,
                         const hasGuest = isGuest(match.teamA.player1Id) || isGuest(match.teamA.player2Id) || isGuest(match.teamB.player1Id) || isGuest(match.teamB.player2Id);
 
                         return (
-                            <div key={match.id} className={`border rounded-3xl overflow-hidden shadow-lg mb-3 ${hasGuest ? 'bg-blue-950/20 border-blue-500/30' : 'bg-zinc-900 border-zinc-800'}`}>
+                            <div key={match.id} className={`liquid-card-elevated rounded-3xl overflow-hidden shadow-lg mb-3 ${hasGuest ? 'border-blue-500/30' : ''}`}>
                                 <div className="p-4 space-y-2">
                                     <div className="flex justify-between items-center mb-2">
                                         <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
@@ -106,7 +106,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ matches, players, onDelete,
                                     </div>
                                 </div>
 
-                                <div className={`p-2 px-4 flex justify-between items-center border-t ${hasGuest ? 'bg-blue-900/10 border-blue-500/20' : 'bg-zinc-950/30 border-zinc-800/30'}`}>
+                                <div className={`p-2 px-4 flex justify-between items-center border-t ${hasGuest ? 'bg-blue-500/5 border-blue-500/20' : 'bg-white/5 border-white/10'}`}>
                                     <div className="flex gap-2">
                                         {hasGuest ? (
                                             <span className="flex items-center gap-1 text-[8px] font-bold text-blue-400 uppercase tracking-widest">

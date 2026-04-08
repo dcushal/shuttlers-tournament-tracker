@@ -63,17 +63,17 @@ const CasualLeaderboard: React.FC<CasualLeaderboardProps> = ({ players, matches,
             </div>
 
             {/* View Toggle */}
-            <div className="bg-zinc-900 p-1.5 rounded-2xl flex border border-zinc-800">
+            <div className="liquid-card-elevated p-1.5 rounded-2xl flex">
                 <button
                     onClick={() => setView('winrate')}
-                    className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${view === 'winrate' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'
+                    className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${view === 'winrate' ? 'bg-green-500/20 border border-green-500/30 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'
                         }`}
                 >
                     <Percent size={14} /> Win Rate %
                 </button>
                 <button
                     onClick={() => setView('wins')}
-                    className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${view === 'wins' ? 'bg-zinc-800 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'
+                    className={`flex-1 py-3 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${view === 'wins' ? 'bg-green-500/20 border border-green-500/30 text-white shadow-lg' : 'text-zinc-500 hover:text-zinc-300'
                         }`}
                 >
                     <Hash size={14} /> Total Wins
@@ -100,13 +100,13 @@ const CasualLeaderboard: React.FC<CasualLeaderboardProps> = ({ players, matches,
                                 </div>
                             )}
                             <div
-                                className={`bg-zinc-900 border border-zinc-800 p-5 rounded-3xl flex items-center gap-4 transition-all ${index < 3 && view === 'winrate' && stat.type === 'member' ? 'border-yellow-500/20' : ''
+                                className={`liquid-card-elevated p-5 rounded-3xl flex items-center gap-4 transition-all ${index < 3 && view === 'winrate' && stat.type === 'member' ? 'border-yellow-500/20' : ''
                                     }`}
                             >
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-black ${index === 0 && stat.type === 'member' ? 'bg-yellow-500 text-zinc-950' :
                                     index === 1 && stat.type === 'member' ? 'bg-zinc-300 text-zinc-900' :
                                         index === 2 && stat.type === 'member' ? 'bg-orange-400 text-zinc-900' :
-                                            'bg-zinc-950 text-zinc-500 border border-zinc-800'
+                                            'bg-white/5 text-white border border-white/10'
                                     }`}>
                                     {index + 1}
                                 </div>
@@ -134,7 +134,7 @@ const CasualLeaderboard: React.FC<CasualLeaderboardProps> = ({ players, matches,
                 })}
 
                 {sortedData.length === 0 && (
-                    <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-12 text-center space-y-2">
+                    <div className="liquid-card-elevated rounded-3xl p-12 text-center space-y-2">
                         <Users size={48} className="mx-auto text-zinc-700 opacity-50" />
                         <p className="text-zinc-500 font-bold uppercase tracking-widest text-[10px]">No qualified players yet</p>
                     </div>

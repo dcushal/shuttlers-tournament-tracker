@@ -152,7 +152,7 @@ const CasualStats: React.FC<CasualStatsProps> = ({ players, matches, currentUser
                     {/* Key Metrics Grid */}
                     <div className="grid grid-cols-2 gap-3">
                         {/* Win Rate Pie Chart Card */}
-                        <div className="col-span-2 bg-gradient-to-br from-zinc-900 to-zinc-950 border border-zinc-800 rounded-[2.5rem] p-6 flex flex-row items-center justify-between relative overflow-hidden group">
+                        <div className="col-span-2 liquid-card-elevated rounded-[2.5rem] p-6 flex flex-row items-center justify-between relative overflow-hidden group">
                             <div className="space-y-2 z-10">
                                 <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-1.5">
                                     <Target size={12} /> Win Rate
@@ -173,7 +173,7 @@ const CasualStats: React.FC<CasualStatsProps> = ({ players, matches, currentUser
                         </div>
 
                         {/* Best Streak */}
-                        <div className="bg-zinc-900 border border-zinc-800 rounded-[2rem] p-5 space-y-3 relative overflow-hidden group">
+                        <div className="liquid-card-elevated rounded-[2rem] p-5 space-y-3 relative overflow-hidden group">
                             <div className="absolute -right-4 -top-4 w-16 h-16 bg-orange-500/10 rounded-full blur-2xl group-hover:bg-orange-500/20 transition-all"></div>
                             <div className="flex justify-between items-start">
                                 <div className="p-2 bg-orange-500/10 rounded-xl text-orange-500 w-fit">
@@ -187,7 +187,7 @@ const CasualStats: React.FC<CasualStatsProps> = ({ players, matches, currentUser
                         </div>
 
                         {/* Toughest Opponent */}
-                        <div className="bg-zinc-900 border border-zinc-800 rounded-[2rem] p-5 space-y-3 relative overflow-hidden group">
+                        <div className="liquid-card-elevated rounded-[2rem] p-5 space-y-3 relative overflow-hidden group">
                             <div className="absolute -right-4 -top-4 w-16 h-16 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-all"></div>
                             {stats.toughestOpponent ? (
                                 <>
@@ -216,7 +216,7 @@ const CasualStats: React.FC<CasualStatsProps> = ({ players, matches, currentUser
                     </div>
 
                     {/* Recent Form (Last 5 Games) */}
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-[2rem] p-5">
+                    <div className="liquid-card-elevated rounded-[2rem] p-5">
                         <h3 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4 flex items-center gap-2">
                             <TrendingUp size={12} /> Last 5 Matches
                         </h3>
@@ -240,7 +240,7 @@ const CasualStats: React.FC<CasualStatsProps> = ({ players, matches, currentUser
                     </div>
 
                     {/* Activity Chart */}
-                    <div className="bg-zinc-900 border border-zinc-800 rounded-[2.5rem] p-6 space-y-4">
+                    <div className="liquid-card-elevated rounded-[2.5rem] p-6 space-y-4">
                         <h3 className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-2">
                             <Clock size={14} className="text-blue-500" /> Matches Played (Last 7 Days)
                         </h3>
@@ -263,7 +263,7 @@ const CasualStats: React.FC<CasualStatsProps> = ({ players, matches, currentUser
                                 if (i === 2) { rankColor = 'text-orange-700 bg-orange-700/10 border border-orange-700/20'; borderColor = 'border-orange-900/30'; }
 
                                 return (
-                                    <div key={p.id} className={`bg-zinc-900 border ${borderColor} p-4 rounded-3xl flex items-center justify-between`}>
+                                    <div key={p.id} className={`liquid-card-elevated border ${borderColor} p-4 rounded-3xl flex items-center justify-between`}>
                                         <div className="flex items-center gap-3">
                                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs ${rankColor}`}>
                                                 {i + 1}

@@ -43,12 +43,11 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                     type: p.type
                 }));
 
-                // Merge: Use localStorage points if available (they have correct tournament recalculations)
-                // Supabase is the source of truth for existence, but localStorage has accurate point history
+                // Supabase is the source of truth for WHO EXISTS.
+                // localStorage only overrides point values (tournament recalculations may lag behind DB sync).
                 const mergedPlayers = dbPlayers.map(dbPlayer => {
                     const localPlayer = localPlayers.find((lp: Player) => lp.id === dbPlayer.id);
                     if (localPlayer) {
-                        // Keep localStorage points (they include tournament recalculations)
                         return {
                             ...dbPlayer,
                             points: localPlayer.points,
@@ -59,21 +58,9 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                     return dbPlayer;
                 });
 
-                // Add any players from localStorage that don't exist in DB (newly added locally)
-                const localOnlyPlayers = localPlayers.filter(
-                    (lp: Player) => !dbPlayers.find(dp => dp.id === lp.id)
-                );
-
-                // Remove duplicates by ID (keep first occurrence)
-                const allPlayersMap = new Map<string, Player>();
-                [...mergedPlayers, ...localOnlyPlayers].forEach(p => {
-                    if (!allPlayersMap.has(p.id)) {
-                        allPlayersMap.set(p.id, p);
-                    }
-                });
-                const allPlayers = Array.from(allPlayersMap.values());
-                setPlayers(allPlayers);
-                localStorage.setItem('shuttlers_players', JSON.stringify(allPlayers));
+                // DO NOT append localOnlyPlayers — players not in Supabase are stale/duplicate artifacts.
+                setPlayers(mergedPlayers);
+                localStorage.setItem('shuttlers_players', JSON.stringify(mergedPlayers));
             }
         } catch (err) {
             // On error, fall back to localStorage

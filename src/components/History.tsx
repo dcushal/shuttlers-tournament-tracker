@@ -14,7 +14,7 @@ const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) 
 
   if (tournaments.length === 0) {
     return (
-      <div className="text-center py-20 bg-zinc-900/50 border border-dashed border-zinc-800 rounded-2xl">
+      <div className="text-center py-20 bg-white/5 border border-dashed border-white/15 rounded-2xl">
         <Calendar size={48} className="mx-auto text-zinc-700 mb-2" />
         <p className="text-zinc-500 text-sm">No historical logs found.</p>
       </div>
@@ -83,7 +83,7 @@ const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) 
           const champion = championId ? t.teams.find(tm => tm.id === championId) : null;
 
           return (
-            <div key={t.id} className="bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden shadow-xl group">
+            <div key={t.id} className="liquid-card-elevated rounded-3xl overflow-hidden shadow-xl group">
               <div className="flex">
                 <button
                   onClick={() => setExpandedId(expandedId === t.id ? null : t.id)}
@@ -124,14 +124,14 @@ const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) 
               </div>
 
               {expandedId === t.id && (
-                <div className="bg-zinc-950/80 p-6 border-t border-zinc-800 space-y-6 animate-in slide-in-from-top-2 duration-300">
+                <div className="bg-black/20 backdrop-blur-xl p-6 border-t border-white/10 space-y-6 animate-in slide-in-from-top-2 duration-300">
                   <div className="space-y-6">
                     {/* Final Standings Table */}
                     <div className="space-y-3">
                       <h4 className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.3em] border-b border-zinc-900 pb-1">Final Standings</h4>
-                      <div className="bg-zinc-900/50 border border-zinc-900 rounded-2xl overflow-hidden">
+                      <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
                         <table className="w-full text-left text-[10px]">
-                          <thead className="bg-zinc-950/50 border-b border-zinc-900">
+                          <thead className="bg-white/5 border-b border-white/10">
                             <tr>
                               <th className="p-3 text-zinc-600 font-black uppercase">Team</th>
                               <th className="p-3 text-zinc-600 font-black uppercase text-center">P</th>
@@ -154,7 +154,7 @@ const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) 
                               return Object.values(stats)
                                 .sort((a, b) => b.won !== a.won ? b.won - a.won : b.pd - a.pd)
                                 .map((s, i) => (
-                                  <tr key={i} className="border-b border-zinc-900/50 last:border-0 hover:bg-zinc-900/50 transition-colors">
+                                  <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
                                     <td className="p-3 font-black text-white uppercase tracking-tight">{s.name}</td>
                                     <td className="p-3 text-zinc-500 font-bold text-center">{s.played}</td>
                                     <td className="p-3 text-green-500 font-black text-center">{s.won}</td>
@@ -179,7 +179,7 @@ const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) 
                               const teamA = t.teams.find(tm => tm.id === m.teamAId);
                               const teamB = t.teams.find(tm => tm.id === m.teamBId);
                               return (
-                                <div key={m.id} className="bg-zinc-900/50 p-3 rounded-2xl flex items-center justify-between">
+                                <div key={m.id} className="bg-white/5 p-3 rounded-2xl flex items-center justify-between">
                                   <div className="flex-1">
                                     <span className={`text-[10px] font-black uppercase ${m.scoreA > m.scoreB ? 'text-white' : 'text-zinc-600'}`}>
                                       {teamA?.player1.name} / {teamA?.player2.name}

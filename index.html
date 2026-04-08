@@ -59,21 +59,9 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #09090b;
+            background-color: #040d04;
             color: #ecfdf5;
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #09090b;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #10b981;
-            border-radius: 10px;
+            position: relative;
         }
     </style>
     <script type="importmap">
@@ -90,6 +78,14 @@
 </head>
 
 <body>
+    <!-- SVG Filter for Glass Distortion - Liquid Glass Effect -->
+    <svg style="display: none">
+      <filter id="glass-distortion">
+        <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
+      </filter>
+    </svg>
+    
     <div id="root"></div>
     <script type="module" src="/src/index.tsx"></script>
 </body>

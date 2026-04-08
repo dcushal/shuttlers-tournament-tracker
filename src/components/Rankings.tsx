@@ -55,7 +55,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                     <Trophy className="text-green-500" />
                     Global Rankings
                 </h2>
-                <div className="text-[10px] font-black text-zinc-500 bg-zinc-900 px-3 py-1 rounded-full border border-zinc-800 uppercase tracking-widest">
+                <div className="text-[10px] font-black text-zinc-400 bg-white/5 backdrop-blur-xl px-3 py-1 rounded-full border border-white/10 uppercase tracking-widest">
                     SEASON 2026
                 </div>
             </div>
@@ -70,7 +70,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                     return (
                         <React.Fragment key={player.id}>
                             <div
-                                className={`relative overflow-hidden rounded-3xl p-5 border transition-all ${index < captainCount ? 'bg-zinc-900 border-green-500/20' : 'glass-card-elevated'
+                                className={`relative overflow-hidden rounded-3xl p-5 transition-all liquid-card-elevated ${index < captainCount ? 'border-green-500/20' : 'border-white/5'
                                     }`}
                             >
                                 {/* Rank Indicator */}
@@ -81,7 +81,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                                 <div className="flex items-center gap-5 relative z-10">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black shadow-lg ${index === 0 ? 'bg-green-500 text-zinc-950' :
                                         index < captainCount ? 'bg-zinc-800 text-white' :
-                                            'bg-zinc-900 text-zinc-500'
+                                            'bg-zinc-800/60 text-white'
                                         }`}>
                                         {index === 0 ? <Crown size={28} strokeWidth={3} /> : displayRank}
                                     </div>
@@ -135,7 +135,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                     <h3 className="text-[10px] font-black uppercase tracking-widest">Global Scoring Logic</h3>
                 </div>
 
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-[2rem] p-6 space-y-6 shadow-2xl">
+                <div className="liquid-card-elevated rounded-[2rem] p-6 space-y-6 shadow-2xl">
                     <div className="grid grid-cols-1 gap-6">
                         {/* Point 1: Placement */}
                         <div className="space-y-3">
@@ -150,7 +150,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                                     { rank: '4th', pts: '-5' },
                                     { rank: '5th', pts: '-10' }
                                 ].map((item) => (
-                                    <div key={item.rank} className="bg-zinc-950 border border-zinc-800/50 p-2 rounded-xl text-center">
+                                    <div key={item.rank} className="bg-white/5 border border-white/10 p-2 rounded-xl text-center">
                                         <p className="text-[8px] font-black text-zinc-500 uppercase mb-1">{item.rank}</p>
                                         <p className={`text-[10px] font-black ${item.pts.startsWith('+') ? 'text-green-500' : item.pts.startsWith('-') ? 'text-red-500' : 'text-zinc-400'}`}>{item.pts}</p>
                                     </div>
@@ -163,7 +163,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                             <h4 className="text-[11px] font-black text-white uppercase flex items-center gap-2 tracking-tight">
                                 <Trophy size={14} className="text-orange-500" /> 2. Match Win Points
                             </h4>
-                            <div className="bg-zinc-950 border border-zinc-800/50 p-4 rounded-2xl relative overflow-hidden">
+                            <div className="bg-white/5 border border-white/10 p-4 rounded-2xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-3 opacity-10">
                                     <Trophy size={32} className="text-orange-500" />
                                 </div>
@@ -181,7 +181,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                             <h4 className="text-[11px] font-black text-white uppercase flex items-center gap-2 tracking-tight">
                                 <Zap size={14} className="text-blue-400" /> 3. Performance Bonus
                             </h4>
-                            <div className="bg-zinc-950 border border-zinc-800/50 p-4 rounded-2xl relative overflow-hidden">
+                            <div className="bg-white/5 border border-white/10 p-4 rounded-2xl relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-3 opacity-10">
                                     <Target size={32} className="text-blue-400" />
                                 </div>

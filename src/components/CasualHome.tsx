@@ -67,7 +67,7 @@ const CasualHome: React.FC<CasualHomeProps> = ({ onSetTab, activeTab, onBack, pl
                     <button
                         key={item.id}
                         onClick={() => onSetTab(item.id as any)}
-                        className="bg-zinc-900 border border-zinc-800 rounded-[2rem] p-6 text-left hover:border-zinc-700 transition-all active:scale-95 space-y-4"
+                        className="liquid-card-elevated rounded-[2rem] p-6 text-left hover:border-green-500/20 transition-all active:scale-95 space-y-4"
                     >
                         <div className={`w-12 h-12 ${item.color} rounded-2xl flex items-center justify-center text-zinc-950 shadow-lg`}>
                             <item.icon size={24} strokeWidth={2.5} />
@@ -78,10 +78,10 @@ const CasualHome: React.FC<CasualHomeProps> = ({ onSetTab, activeTab, onBack, pl
             </div>
 
             {/* Quick Stats Dashboard */}
-            <div className="bg-zinc-900/50 border border-zinc-800 rounded-[2.5rem] p-6 space-y-6">
+            <div className="liquid-card-elevated rounded-[2.5rem] p-6 space-y-6">
                 <div className="flex items-center justify-between">
                     <h3 className="text-lg font-black text-white uppercase italic">My Performance</h3>
-                    <div className="px-3 py-1 bg-zinc-800 rounded-full text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                    <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-[10px] font-bold text-zinc-300 uppercase tracking-widest">
                         All Time
                     </div>
                 </div>

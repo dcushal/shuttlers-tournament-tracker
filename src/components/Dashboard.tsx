@@ -113,7 +113,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
 
   return (
     <div className="space-y-4 pb-6">
-      <div className="glass-card card-hover p-6 relative overflow-hidden group">
+      <div className="liquid-card card-hover p-6 relative overflow-hidden group">
         <div className="absolute -top-10 -right-10 w-40 h-40 bg-green-500/10 rounded-full blur-3xl group-hover:bg-green-500/20 transition-colors"></div>
 
         <div className="flex items-start justify-between mb-8">
@@ -148,7 +148,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
       <div className="grid grid-cols-2 gap-4">
         <button
           onClick={handleMVPCelebration}
-          className="glass-card-elevated p-5 rounded-3xl group hover:border-yellow-500/30 transition-colors relative overflow-hidden text-left active:scale-95 duration-200"
+          className="liquid-card-elevated p-5 rounded-3xl group hover:border-yellow-500/30 transition-colors relative overflow-hidden text-left active:scale-95 duration-200"
         >
           <div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity animate-glow-pulse"></div>
           <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-3 relative z-10">CURRENT MVP</p>
@@ -161,7 +161,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
         </button>
         <button
           onClick={() => onNavigate('insights')}
-          className="glass-card-elevated p-5 rounded-3xl group hover:border-yellow-500/30 transition-all text-left active:scale-95 duration-200 relative overflow-hidden"
+          className="liquid-card-elevated p-5 rounded-3xl group hover:border-yellow-500/30 transition-all text-left active:scale-95 duration-200 relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-3 relative z-10">
@@ -179,7 +179,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
       </div>
 
       {activeTournament && (
-        <div className="glass-card card-hover overflow-hidden shadow-2xl">
+        <div className="liquid-card card-hover overflow-hidden shadow-2xl">
           <div className="bg-green-500/10 px-6 py-4 border-b border-green-500/10 flex justify-between items-center">
             <h3 className="font-black text-green-500 text-xs uppercase tracking-widest flex items-center gap-2">
               <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-glow-pulse shadow-[0_0_10px_#9ee312]"></span> LIVE: {activeTournament.name}
@@ -208,7 +208,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
       )}
 
       {/* Hall of Fame Section */}
-      <div className="bg-zinc-900/40 border border-yellow-500/10 rounded-3xl p-5 space-y-5">
+      <div className="liquid-card border-yellow-500/10 rounded-3xl p-5 space-y-5">
         <div className="flex items-center justify-between px-1">
           <h3 className="text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
             <Trophy size={14} className="text-yellow-500" />
@@ -218,7 +218,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
         </div>
         <div className="space-y-3 max-h-[300px] overflow-y-auto no-scrollbar pr-1">
           {hallOfFame.map((entry, idx) => (
-            <div key={entry.id} className={`flex items-center justify-between p-4 rounded-2xl border ${idx === 0 ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-zinc-950/50 border-zinc-800/50'}`}>
+            <div key={entry.id} className={`flex items-center justify-between p-4 rounded-2xl border ${idx === 0 ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-white/5 border-white/10'}`}>
               <div className="flex items-center gap-4 flex-1">
                 <div className="space-y-1">
                   <p className="text-xs font-black text-white uppercase tracking-tight">{entry.teamName}</p>
@@ -246,7 +246,7 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
         <>
           <button
             onClick={onResetData}
-            className="w-full mt-4 bg-zinc-950 border border-red-500/20 text-red-500 p-4 rounded-3xl text-xs font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2 group"
+            className="w-full mt-4 bg-red-500/10 backdrop-blur-xl border border-red-500/20 text-red-500 p-4 rounded-3xl text-xs font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2 group"
           >
             <RotateCcw size={16} className="group-hover:-rotate-180 transition-transform duration-500" /> Reset System Data
           </button>

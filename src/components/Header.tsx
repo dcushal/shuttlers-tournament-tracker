@@ -15,13 +15,13 @@ interface Props {
 
 const Header: React.FC<Props> = ({ onLogout, onBackToModes, user, mode }) => {
   return (
-    <header className="glass-card-elevated py-4 z-40">
+    <header className="liquid-card-elevated py-4 z-40">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           {onBackToModes && (
             <button
               onClick={onBackToModes}
-              className="w-12 h-12 bg-zinc-900/50 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-500 hover:text-white transition-all active:scale-90"
+              className="flex items-center justify-center text-zinc-400 hover:text-white transition-all active:scale-90"
             >
               <ArrowLeft size={20} />
             </button>
@@ -42,7 +42,7 @@ const Header: React.FC<Props> = ({ onLogout, onBackToModes, user, mode }) => {
           {onLogout && (
             <button
               onClick={onLogout}
-              className="w-12 h-12 bg-zinc-900/50 border border-zinc-800 rounded-2xl flex items-center justify-center text-zinc-500 hover:text-red-500 active:scale-90 transition-all"
+              className="flex items-center justify-center text-zinc-400 hover:text-red-500 active:scale-90 transition-all"
             >
               <LogOut size={20} />
             </button>

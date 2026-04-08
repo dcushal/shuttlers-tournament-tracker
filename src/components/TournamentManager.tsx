@@ -184,7 +184,7 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
     const isNudge = nudge?.matchId === match.id;
 
     return (
-      <div key={match.id} className={`bg-zinc-900 border rounded-3xl p-6 transition-all shadow-xl shadow-black/40 ${match.isCompleted ? 'border-zinc-800/50 opacity-60' : 'border-green-500/30 ring-1 ring-green-500/10'}`}>
+      <div key={match.id} className={`liquid-card-elevated rounded-3xl p-6 transition-all shadow-xl shadow-black/40 ${match.isCompleted ? 'border-white/5 opacity-60' : 'border-green-500/30 ring-1 ring-green-500/10'}`}>
         <div className="flex items-center justify-between mb-6">
           <div className="flex-1">
             <p className="text-[8px] text-zinc-600 font-black uppercase tracking-[0.2em] mb-1.5">Home Pair</p>
@@ -229,7 +229,7 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
                 <button onClick={() => {
                   const updated = activeTournament!.matches.map(m => m.id === match.id ? { ...m, isCompleted: false } : m);
                   onUpdate({ ...activeTournament!, matches: updated });
-                }} className="p-4 bg-zinc-800 text-zinc-400 rounded-2xl hover:bg-zinc-700 transition-all self-center">
+                }} className="p-4 bg-white/10 text-zinc-300 rounded-2xl hover:bg-white/20 transition-all self-center">
                   <RotateCcw size={24} />
                 </button>
               )
@@ -266,14 +266,14 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
 
   if (showGlory && champion) {
     return (
-      <div className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col items-center justify-center p-6 text-center">
+      <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center">
         <div className="relative z-10 space-y-6 w-full flex flex-col items-center">
           <Trophy size={80} className="text-yellow-500 drop-shadow-[0_0_20px_rgba(234,179,8,0.5)]" />
           <div className="space-y-1">
             <h1 className="text-4xl font-black text-white uppercase tracking-tighter">Champion</h1>
             <p className="text-green-500 font-black uppercase tracking-[0.4em] text-[10px]">Glory attained</p>
           </div>
-          <div className="bg-zinc-900 border border-green-500/30 p-8 rounded-3xl shadow-2xl w-full max-w-sm">
+          <div className="liquid-card border-green-500/30 p-8 rounded-3xl shadow-2xl w-full max-w-sm">
             <h2 className="text-2xl font-black text-white uppercase">{champion.player1.name} & {champion.player2.name}</h2>
           </div>
           <div className="flex flex-col gap-3 w-full max-w-sm">
@@ -290,17 +290,17 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
       <div className="space-y-6">
         {user.role === 'admin' ? (
           step === 1 ? (
-            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl space-y-6 shadow-xl">
+            <div className="liquid-card-elevated p-6 rounded-3xl space-y-6 shadow-xl">
               <div className="space-y-4">
                 <div>
                   <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2 px-1">Tournament Title</label>
-                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Night Clash #42" className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-green-500 font-bold transition-all" />
+                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Night Clash #42" className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-green-500 font-bold transition-all" />
                 </div>
                 <div>
                   <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2 px-1">Winning Cap</label>
                   <div className="flex gap-3">
                     {[11, 15, 21].map(p => (
-                      <button key={p} onClick={() => setPointLimit(p as any)} className={`flex-1 py-4 rounded-2xl border font-black transition-all text-sm uppercase ${pointLimit === p ? 'bg-green-500 border-green-500 text-zinc-950' : 'bg-zinc-950 border-zinc-800 text-zinc-500'}`}>{p}</button>
+                      <button key={p} onClick={() => setPointLimit(p as any)} className={`flex-1 py-4 rounded-2xl border font-black transition-all text-sm uppercase ${pointLimit === p ? 'bg-green-500 border-green-500 text-zinc-950' : 'bg-white/5 border-white/10 text-zinc-400'}`}>{p}</button>
                     ))}
                   </div>
                 </div>
@@ -311,7 +311,7 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
                       type="date" 
                       value={customDate} 
                       onChange={(e) => setCustomDate(e.target.value)} 
-                      className="bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-green-500 font-bold transition-all text-center w-full max-w-[200px]"
+                      className="bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-green-500 font-bold transition-all text-center w-full max-w-[200px]"
                     />
                   </div>
                 </div>
@@ -320,19 +320,19 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl space-y-4 shadow-xl">
+              <div className="liquid-card-elevated p-6 rounded-3xl space-y-4 shadow-xl">
                 <button onClick={rankPairing} className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl bg-green-500 text-zinc-950 font-black uppercase tracking-widest text-xs hover:bg-green-400 transition-all shadow-lg"><Swords size={18} /> Rank-Based Pairings</button>
                 <div className="grid grid-cols-2 gap-3">
-                  <select value={p1Id} onChange={(e) => setP1Id(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 text-white font-bold text-xs rounded-xl p-4"><option value="">P1...</option>{players.filter(p => !unavailableIds.includes(p.id) && p.id !== p2Id).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
-                  <select value={p2Id} onChange={(e) => setP2Id(e.target.value)} className="w-full bg-zinc-950 border border-zinc-800 text-white font-bold text-xs rounded-xl p-4"><option value="">P2...</option>{players.filter(p => !unavailableIds.includes(p.id) && p.id !== p1Id).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                  <select value={p1Id} onChange={(e) => setP1Id(e.target.value)} className="w-full bg-white/5 border border-white/10 text-white font-bold text-xs rounded-xl p-4"><option value="">P1...</option>{players.filter(p => !unavailableIds.includes(p.id) && p.id !== p2Id).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
+                  <select value={p2Id} onChange={(e) => setP2Id(e.target.value)} className="w-full bg-white/5 border border-white/10 text-white font-bold text-xs rounded-xl p-4"><option value="">P2...</option>{players.filter(p => !unavailableIds.includes(p.id) && p.id !== p1Id).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>
                 </div>
-                <button onClick={addTeam} disabled={!p1Id || !p2Id} className="w-full bg-zinc-800 text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-20"><Plus size={16} /> Register Team</button>
+                <button onClick={addTeam} disabled={!p1Id || !p2Id} className="w-full bg-white/10 text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-20"><Plus size={16} /> Register Team</button>
               </div>
-              <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-3xl space-y-4 shadow-xl">
+              <div className="liquid-card-elevated p-6 rounded-3xl space-y-4 shadow-xl">
                 <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Selected Teams ({selectedTeams.length})</h3>
                 <div className="space-y-2">
                   {selectedTeams.map(team => (
-                    <div key={team.id} className="flex items-center justify-between bg-zinc-950 p-4 rounded-xl border border-zinc-800 group"><span className="text-xs font-bold text-white uppercase">{team.player1.name} & {team.player2.name}</span><button onClick={() => setSelectedTeams(prev => prev.filter(t => t.id !== team.id))} className="text-zinc-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Plus className="rotate-45" size={16} /></button></div>
+                    <div key={team.id} className="flex items-center justify-between bg-white/5 p-4 rounded-xl border border-white/10 group"><span className="text-xs font-bold text-white uppercase">{team.player1.name} & {team.player2.name}</span><button onClick={() => setSelectedTeams(prev => prev.filter(t => t.id !== team.id))} className="text-zinc-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Plus className="rotate-45" size={16} /></button></div>
                   ))}
                 </div>
                 <div className="pt-2">
@@ -343,8 +343,8 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
             </div>
           )
         ) : (
-          <div className="bg-zinc-900 border border-zinc-800 p-12 rounded-[2.5rem] text-center space-y-6">
-            <div className="w-20 h-20 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto"><Clock size={32} className="text-zinc-500" /></div>
+          <div className="liquid-card-elevated p-12 rounded-[2.5rem] text-center space-y-6">
+            <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto"><Clock size={32} className="text-zinc-500" /></div>
             <div className="space-y-2"><h3 className="text-xl font-black text-white uppercase tracking-tighter">Waiting for Host</h3><p className="text-zinc-500 text-xs font-medium leading-relaxed max-w-[200px] mx-auto">A tournament hasn't been started yet. Please wait for an Admin to initialize the session.</p></div>
           </div>
         )}
@@ -354,15 +354,15 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="bg-zinc-900 border border-green-500/20 p-6 rounded-3xl relative overflow-hidden shadow-2xl">
+      <div className="liquid-card border-green-500/20 p-6 rounded-3xl relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 p-4 flex gap-1.5"><div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span className="text-[10px] text-green-400 font-black tracking-widest uppercase">{activeTournament.currentPhase.replace('-', ' ')}</span></div>
         <div className="space-y-1"><h2 className="text-2xl font-black text-white leading-tight uppercase tracking-tighter">{activeTournament.name}</h2><p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Target: {activeTournament.pointLimit}</p></div>
       </div>
       <div className="space-y-4">
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-xl">
+        <div className="liquid-card-elevated rounded-2xl overflow-hidden shadow-xl">
           <table className="w-full text-left text-[11px]">
-            <thead className="border-b border-zinc-800 bg-zinc-950/50"><tr><th className="p-4 text-zinc-500 font-black uppercase tracking-widest">Team</th><th className="p-4 text-zinc-500 font-black uppercase tracking-widest text-center">P</th><th className="p-4 text-green-500 font-black uppercase tracking-widest text-center">W</th><th className="p-4 text-red-500 font-black uppercase tracking-widest text-center">L</th><th className="p-4 text-zinc-500 font-black uppercase tracking-widest text-right">Diff</th></tr></thead>
-            <tbody>{standings.map((stat, i) => (<tr key={stat.teamId} className={`border-b border-zinc-800/50 group transition-colors ${i < 2 ? 'bg-green-500/[0.03]' : ''}`}><td className="p-4"><div className="flex items-center gap-3"><span className={`w-2 h-2 rounded-full ${i < 2 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,1)]' : 'bg-zinc-800'}`}></span><span className="font-black text-white uppercase group-hover:text-green-400 transition-colors">{stat.teamName}</span></div></td><td className="p-4 text-zinc-400 font-bold text-center">{stat.played}</td><td className="p-4 text-green-500 font-black text-center">{stat.won}</td><td className="p-4 text-red-500/80 font-bold text-center">{stat.lost}</td><td className="p-4 text-zinc-400 font-bold text-right">{stat.pointDiff > 0 ? `+${stat.pointDiff}` : stat.pointDiff}</td></tr>))}</tbody>
+            <thead className="border-b border-white/10 bg-white/5"><tr><th className="p-4 text-zinc-500 font-black uppercase tracking-widest">Team</th><th className="p-4 text-zinc-500 font-black uppercase tracking-widest text-center">P</th><th className="p-4 text-green-500 font-black uppercase tracking-widest text-center">W</th><th className="p-4 text-red-500 font-black uppercase tracking-widest text-center">L</th><th className="p-4 text-zinc-500 font-black uppercase tracking-widest text-right">Diff</th></tr></thead>
+            <tbody>{standings.map((stat, i) => (<tr key={stat.teamId} className={`border-b border-white/5 group transition-colors ${i < 2 ? 'bg-green-500/5' : ''}`}><td className="p-4"><div className="flex items-center gap-3"><span className={`w-2 h-2 rounded-full ${i < 2 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,1)]' : 'bg-zinc-800'}`}></span><span className="font-black text-white uppercase group-hover:text-green-400 transition-colors">{stat.teamName}</span></div></td><td className="p-4 text-zinc-400 font-bold text-center">{stat.played}</td><td className="p-4 text-green-500 font-black text-center">{stat.won}</td><td className="p-4 text-red-500/80 font-bold text-center">{stat.lost}</td><td className="p-4 text-zinc-400 font-bold text-right">{stat.pointDiff > 0 ? `+${stat.pointDiff}` : stat.pointDiff}</td></tr>))}</tbody>
           </table>
         </div>
       </div>
@@ -370,7 +370,7 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
         <div className="flex items-center justify-between px-2">
           <h3 className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">Fixtures</h3>
           {user.role === 'admin' && activeTournament.currentPhase === 'round-robin' && activeTournament.matches.some(m => !m.isCompleted) && (
-            <button onClick={autoFillScores} className="flex items-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest bg-zinc-900/50 border border-zinc-800 px-3 py-1.5 rounded-full hover:text-green-500 hover:border-green-500/30 transition-all"><Zap size={12} className="fill-current" /> Auto-fill</button>
+            <button onClick={autoFillScores} className="flex items-center gap-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest bg-white/5 backdrop-blur-xl border border-white/10 px-3 py-1.5 rounded-full hover:text-green-500 hover:border-green-500/30 transition-all"><Zap size={12} className="fill-current" /> Auto-fill</button>
           )}
         </div>
         <div className="grid gap-4">{currentMatches.map(match => renderMatchCard(match))}</div>

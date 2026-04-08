@@ -44,7 +44,7 @@ const ScrollPicker: React.FC<ScrollPickerProps> = ({ value, min = 0, max, onChan
     }, [value, options]);
 
     return (
-        <div className={`relative h-[${itemHeight * 3}px] w-full overflow-hidden flex flex-col items-center bg-zinc-950 border border-zinc-800 rounded-2xl ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
+        <div className={`relative h-[${itemHeight * 3}px] w-full overflow-hidden flex flex-col items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
             <div
                 className="absolute inset-x-0 bg-white/5 border-y border-white/10 pointer-events-none z-10"
                 style={{ top: itemHeight, height: itemHeight }}
