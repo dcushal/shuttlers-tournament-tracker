@@ -306,12 +306,14 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
                 </div>
                 <div>
                   <label className="block text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] mb-2 px-1">Date (Optional)</label>
-                  <input 
-                    type="date" 
-                    value={customDate} 
-                    onChange={(e) => setCustomDate(e.target.value)} 
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-green-500 font-bold transition-all text-center"
-                  />
+                  <div className="flex justify-center">
+                    <input 
+                      type="date" 
+                      value={customDate} 
+                      onChange={(e) => setCustomDate(e.target.value)} 
+                      className="bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-green-500 font-bold transition-all text-center w-full max-w-[200px]"
+                    />
+                  </div>
                 </div>
               </div>
               <button onClick={() => setStep(2)} className="w-full bg-green-500 text-zinc-950 py-5 rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-2">Continue to Roster <ChevronRight size={18} /></button>
