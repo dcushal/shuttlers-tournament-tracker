@@ -178,37 +178,6 @@ const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, tr
         </button>
       </div>
 
-      <button
-        onClick={() => onNavigate('treasury')}
-        className="w-full bg-zinc-900/50 border border-zinc-800 p-5 rounded-3xl text-left relative overflow-hidden group hover:border-green-500/30 transition-all active:scale-[0.99] duration-200"
-      >
-        <div className="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-          <Lock size={80} className="text-white" />
-        </div>
-        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-3 relative z-10">REIMBURSEMENT DUE</p>
-        <div className="flex items-end justify-between relative z-10">
-          <div className="space-y-2 flex-1">
-            {treasurySummary.purchasers.length > 0 ? (
-              <div className="space-y-1">
-                {treasurySummary.purchasers.map((p, idx) => (
-                  <div key={idx} className="flex items-center justify-between pr-8 border-l-2 border-green-500/30 pl-3">
-                    <p className="text-xs font-black text-zinc-400 uppercase tracking-tighter">{p.name}</p>
-                    <span className="text-sm font-black text-white">₹{p.amount}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs font-black text-zinc-600 uppercase tracking-tighter">Club Treasury settled</p>
-            )}
-            <div className="pt-1 border-t border-zinc-800/50 mt-1">
-              <span className={`text-2xl font-black ${treasurySummary.totalDue === 0 ? 'text-green-500' : 'text-yellow-500'}`}>₹{treasurySummary.totalDue}</span>
-            </div>
-          </div>
-          <div className={`p-2 rounded-xl bg-zinc-800 text-zinc-500 group-hover:text-green-500 transition-colors shadow-lg`}><Lock size={20} /></div>
-        </div>
-      </button>
-
       {activeTournament && (
         <div className="bg-zinc-900 border border-green-500/20 rounded-3xl overflow-hidden shadow-2xl">
           <div className="bg-green-500/10 px-6 py-4 border-b border-green-500/10 flex justify-between items-center">

@@ -7,7 +7,7 @@ import PlayersList from './components/PlayersList';
 import TournamentManager from './components/TournamentManager';
 import History from './components/History';
 import Insights from './components/Insights';
-import Treasury from './components/Treasury';
+
 import ModeSelector from './components/ModeSelector';
 import Header from './components/Header';
 import Rankings from './components/Rankings';
@@ -17,7 +17,7 @@ import LogMatch from './components/LogMatch';
 import CasualStats from './components/CasualStats';
 import CasualLeaderboard from './components/CasualLeaderboard';
 import MatchHistory from './components/MatchHistory';
-import { Trophy, Users, LayoutDashboard, Crown, Lightbulb, Wallet, Activity, History as HistoryIcon, BarChart2, Plus } from 'lucide-react';
+import { Trophy, Users, LayoutDashboard, Crown, Lightbulb, Activity, History as HistoryIcon, BarChart2, Plus } from 'lucide-react';
 import { recalculatePlayerStats } from './utils/rankingSystem';
 
 const INITIAL_RANKINGS: { name: string; points: number }[] = [
@@ -80,10 +80,20 @@ const App: React.FC = () => {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (parsed.length > 0) {
-        // Filter out corrupted data (strings or nulls) from localStorage
-        const validPlayers = parsed.filter((p: any) => typeof p === 'object' && p !== null && p.name);
+        // Filter out corrupted data (strings or nulls) and remove duplicates by ID
+        const validPlayers = parsed.filter((p: any) => typeof p === 'object' && p !== null && p.name && p.id);
+        
+        // Remove duplicates by ID
+        const seen = new Set<string>();
+        const uniquePlayers: Player[] = [];
+        validPlayers.forEach((p: any) => {
+          if (!seen.has(p.id)) {
+            seen.add(p.id);
+            uniquePlayers.push(p);
+          }
+        });
 
-        loadedPlayers = validPlayers.map((p: any) => {
+        loadedPlayers = uniquePlayers.map((p: any) => {
           const initial = INITIAL_RANKINGS.find(ir => ir.name.toLowerCase() === p.name.toLowerCase());
           const hasPoints = typeof p.points === 'number' && !isNaN(p.points);
           const points = hasPoints ? p.points : (initial ? initial.points : 0);
@@ -443,16 +453,6 @@ const App: React.FC = () => {
             <History tournaments={tournaments} onDelete={handleDeleteTournament} />
           )}
 
-          {activeTab === 'treasury' && (
-            <Treasury
-              players={tournamentPlayers}
-              checkedInIds={checkedInIds}
-              transactions={transactions}
-              setTransactions={setTransactions}
-              user={user}
-            />
-          )}
-
           {activeTab === 'tournament' && (
             <TournamentManager
               players={tournamentPlayers}
@@ -519,13 +519,6 @@ const App: React.FC = () => {
             >
               <Lightbulb size={20} strokeWidth={activeTab === 'insights' ? 3 : 2} />
               <span className="text-[8px] font-black uppercase tracking-widest">Stats</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('treasury')}
-              className={`flex flex-col items-center gap-1 transition-all ${activeTab === 'treasury' ? 'text-green-500 scale-110' : 'text-zinc-600'}`}
-            >
-              <Wallet size={20} strokeWidth={activeTab === 'treasury' ? 3 : 2} />
-              <span className="text-[8px] font-black uppercase tracking-widest">Funds</span>
             </button>
           </div>
         </nav>

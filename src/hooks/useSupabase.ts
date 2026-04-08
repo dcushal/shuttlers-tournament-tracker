@@ -10,7 +10,15 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
 
     // Fetch players from Supabase
     const fetchPlayers = useCallback(async () => {
+        // First, load from localStorage as base (these have the correct recalculated points)
+        const localData = localStorage.getItem('shuttlers_players');
+        const localPlayers = localData ? JSON.parse(localData) : [];
+
         if (!isSupabaseConfigured() || !supabase) {
+            // No Supabase - use localStorage data directly
+            if (localPlayers.length > 0) {
+                setPlayers(localPlayers);
+            }
             setLoading(false);
             return;
         }
@@ -24,7 +32,8 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
             if (error) throw error;
 
             if (data && data.length > 0) {
-                setPlayers(data.map(p => ({
+                // Convert Supabase players to app format
+                const dbPlayers: Player[] = data.map(p => ({
                     id: p.id,
                     name: p.name,
                     points: p.points,
@@ -32,9 +41,45 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                     previousRank: p.previous_rank,
                     isCheckedIn: p.is_checked_in,
                     type: p.type
-                })));
+                }));
+
+                // Merge: Use localStorage points if available (they have correct tournament recalculations)
+                // Supabase is the source of truth for existence, but localStorage has accurate point history
+                const mergedPlayers = dbPlayers.map(dbPlayer => {
+                    const localPlayer = localPlayers.find((lp: Player) => lp.id === dbPlayer.id);
+                    if (localPlayer) {
+                        // Keep localStorage points (they include tournament recalculations)
+                        return {
+                            ...dbPlayer,
+                            points: localPlayer.points,
+                            previousRank: localPlayer.previousRank,
+                            isCheckedIn: localPlayer.isCheckedIn
+                        };
+                    }
+                    return dbPlayer;
+                });
+
+                // Add any players from localStorage that don't exist in DB (newly added locally)
+                const localOnlyPlayers = localPlayers.filter(
+                    (lp: Player) => !dbPlayers.find(dp => dp.id === lp.id)
+                );
+
+                // Remove duplicates by ID (keep first occurrence)
+                const allPlayersMap = new Map<string, Player>();
+                [...mergedPlayers, ...localOnlyPlayers].forEach(p => {
+                    if (!allPlayersMap.has(p.id)) {
+                        allPlayersMap.set(p.id, p);
+                    }
+                });
+                const allPlayers = Array.from(allPlayersMap.values());
+                setPlayers(allPlayers);
+                localStorage.setItem('shuttlers_players', JSON.stringify(allPlayers));
             }
         } catch (err) {
+            // On error, fall back to localStorage
+            if (localPlayers.length > 0) {
+                setPlayers(localPlayers);
+            }
             setError(err instanceof Error ? err.message : 'Failed to fetch players');
             console.error('Error fetching players:', err);
         } finally {
