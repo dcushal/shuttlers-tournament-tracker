@@ -80,7 +80,7 @@ const LogMatch: React.FC<LogMatchProps> = ({
                             type="date"
                             value={date}
                             onChange={(e) => setDate(e.target.value)}
-                            className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl py-4 px-12 text-white font-bold focus:outline-none focus:border-green-500 transition-all appearance-none cursor-pointer"
+                            className="w-full block box-border min-w-0 bg-zinc-950 border border-zinc-800 rounded-2xl py-4 px-12 text-white font-bold focus:outline-none focus:border-green-500 transition-all appearance-none cursor-pointer"
                         />
                         <Calendar size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-600" />
                     </div>

@@ -310,7 +310,7 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
                     type="date" 
                     value={customDate} 
                     onChange={(e) => setCustomDate(e.target.value)} 
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-green-500 font-bold transition-all"
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-green-500 font-bold transition-all text-center"
                   />
                 </div>
               </div>
