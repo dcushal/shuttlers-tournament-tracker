@@ -43,15 +43,13 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                     type: p.type
                 }));
 
-                // Supabase is the source of truth for WHO EXISTS.
-                // localStorage only overrides point values (tournament recalculations may lag behind DB sync).
+                // Supabase is the source of truth for points, rank, and who exists.
+                // localStorage only overrides isCheckedIn (session-local state).
                 const mergedPlayers = dbPlayers.map(dbPlayer => {
                     const localPlayer = localPlayers.find((lp: Player) => lp.id === dbPlayer.id);
                     if (localPlayer) {
                         return {
                             ...dbPlayer,
-                            points: localPlayer.points,
-                            previousRank: localPlayer.previousRank,
                             isCheckedIn: localPlayer.isCheckedIn
                         };
                     }
