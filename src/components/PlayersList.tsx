@@ -82,6 +82,12 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
   };
 
   const removePlayer = (id: string) => {
+    const player = players.find(p => p.id === id);
+    if (!player) return;
+    
+    if (!confirm(`Are you sure you want to delete "${player.name}" from the roster? This will affect rankings.`)) {
+      return;
+    }
     // Use the hook's deletePlayer which handles Supabase delete + re-ranking
     hookDeletePlayer(id);
   };
