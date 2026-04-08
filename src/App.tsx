@@ -501,21 +501,21 @@ const App: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('players')}
-              className={`flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'players' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'players' ? 'nav-item-active text-green-400' : 'text-zinc-400'}`}
             >
               <Users size={20} strokeWidth={activeTab === 'players' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Roster</span>
             </button>
             <button
               onClick={() => setActiveTab('rankings')}
-              className={`flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'rankings' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'rankings' ? 'nav-item-active text-green-400' : 'text-zinc-400'}`}
             >
               <Crown size={20} strokeWidth={activeTab === 'rankings' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Ranks</span>
             </button>
             <button
               onClick={() => setActiveTab('insights')}
-              className={`flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'insights' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+              className={`nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === 'insights' ? 'nav-item-active text-green-400' : 'text-zinc-400'}`}
             >
               <Lightbulb size={20} strokeWidth={activeTab === 'insights' ? 2.5 : 1.5} />
               <span className="text-[8px] font-bold uppercase tracking-widest">Stats</span>
