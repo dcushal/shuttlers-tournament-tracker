@@ -3,12 +3,11 @@ import React from 'react';
 
 const Logo: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => {
   return (
-    <div className={`${className} relative flex items-center justify-center overflow-hidden rounded-xl`}>
+    <div className={`${className} relative flex items-center justify-center`} style={{ mixBlendMode: 'screen' }}>
       <img
         src="/logo.jpg"
         alt="8:30 Shuttlers Logo"
         className="w-full h-full object-contain scale-[1.6]"
-        style={{ mixBlendMode: 'screen' }}
       />
     </div>
   );
