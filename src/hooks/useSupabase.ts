@@ -113,9 +113,10 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                         points: p.points,
                         rank: p.rank,
                         previous_rank: p.previousRank,
-                        starting_points: p.startingPoints ?? 10,
                         is_checked_in: p.isCheckedIn ?? false,
-                        type: p.type ?? 'member'
+                        type: p.type ?? 'member',
+                        // Only include starting_points if it's defined — column may not exist yet
+                        ...(p.startingPoints !== undefined && { starting_points: p.startingPoints }),
                     })),
                     { onConflict: 'id' }
                 );
