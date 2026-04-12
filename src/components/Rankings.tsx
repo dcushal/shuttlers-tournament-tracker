@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Trophy, Medal, Crown, Info, Zap, Target, Star, RefreshCw } from 'lucide-react';
+import { Trophy, Medal, Crown, Info, Zap, Target, Star, RefreshCw, Share2 } from 'lucide-react';
 import { Player, Tournament } from '../types';
 
 interface RankingsProps {
@@ -22,6 +22,34 @@ interface PlayerStats {
 const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSyncRankings }) => {
     const [syncing, setSyncing] = useState(false);
     const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+    const shareRankings = () => {
+        const captainCount = Math.floor(sortedPlayers.length / 2);
+        const date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+        let text = `🏸 8:30 SHUTTLERS — RANKINGS\n`;
+        text += `📅 ${date}  •  SEASON 2026\n\n`;
+
+        sortedPlayers.forEach((player, i) => {
+            const rank = i + 1;
+            const pts = player.points % 1 === 0 ? player.points : player.points.toFixed(1);
+            const crown = i === 0 ? '👑 ' : '    ';
+            text += `${String(rank).padStart(2)}. ${crown}${player.name.padEnd(12)}${pts} pts\n`;
+            if (i === captainCount - 1) text += `${'─'.repeat(28)}\n`;
+        });
+
+        text += `\nTracked via 8:30 Shuttlers 🏸`;
+
+        if (navigator.share) {
+            navigator.share({ title: '8:30 Shuttlers Rankings', text }).catch(() => {
+                navigator.clipboard.writeText(text);
+                alert('Rankings copied to clipboard!');
+            });
+        } else {
+            navigator.clipboard.writeText(text);
+            alert('Rankings copied to clipboard!');
+        }
+    };
 
     const handleSync = async () => {
         if (!onSyncRankings || syncing) return;
@@ -95,6 +123,14 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSy
                             {syncing ? 'Syncing…' : syncStatus === 'success' ? 'Synced!' : syncStatus === 'error' ? 'Failed' : 'Sync'}
                         </button>
                     )}
+                    <button
+                        onClick={shareRankings}
+                        className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border bg-white/5 border-white/10 text-zinc-400 hover:border-green-500/30 hover:text-green-400 transition-all"
+                        title="Share Rankings"
+                    >
+                        <Share2 size={10} />
+                        Share
+                    </button>
                     <div className="text-[10px] font-black text-zinc-400 bg-white/5 backdrop-blur-xl px-3 py-1 rounded-full border border-white/10 uppercase tracking-widest">
                         SEASON 2026
                     </div>
