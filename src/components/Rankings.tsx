@@ -131,9 +131,6 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSy
                         <Share2 size={10} />
                         Share
                     </button>
-                    <div className="text-[10px] font-black text-zinc-400 bg-white/5 backdrop-blur-xl px-3 py-1 rounded-full border border-white/10 uppercase tracking-widest">
-                        SEASON 2026
-                    </div>
                 </div>
             </div>
 
