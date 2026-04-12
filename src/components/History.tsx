@@ -35,27 +35,70 @@ const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) 
     const championId = finalMatch ? (finalMatch.scoreA > finalMatch.scoreB ? finalMatch.teamAId : finalMatch.teamBId) : null;
     const champion = championId ? t.teams.find(tm => tm.id === championId) : null;
 
-    let text = `🏸 *${t.name}* - SESSION REPORT\n`;
-    text += `📅 ${new Date(t.date).toLocaleDateString()}\n\n`;
-    if (champion) {
-      text += `🏆 *CHAMPIONS:* ${champion.player1.name} & ${champion.player2.name}\n`;
-    }
-    text += `\n*Final Standings:*\n`;
+    const getTeamName = (id: string) => {
+      const team = t.teams.find(tm => tm.id === id);
+      return team ? `${team.player1.name}/${team.player2.name}` : '?';
+    };
 
-    // Simplistic standings for the share text
-    const teamWins: Record<string, number> = {};
-    t.teams.forEach(tm => teamWins[tm.id] = 0);
+    // Compute standings from all completed matches
+    const stats: Record<string, { won: number; lost: number; pd: number }> = {};
+    t.teams.forEach(tm => stats[tm.id] = { won: 0, lost: 0, pd: 0 });
     t.matches.filter(m => m.isCompleted).forEach(m => {
-      const winnerId = m.scoreA > m.scoreB ? m.teamAId : m.teamBId;
-      teamWins[winnerId]++;
+      stats[m.teamAId].pd += (m.scoreA - m.scoreB);
+      stats[m.teamBId].pd += (m.scoreB - m.scoreA);
+      if (m.scoreA > m.scoreB) { stats[m.teamAId].won++; stats[m.teamBId].lost++; }
+      else { stats[m.teamBId].won++; stats[m.teamAId].lost++; }
     });
 
-    const sortedTeams = [...t.teams].sort((a, b) => teamWins[b.id] - teamWins[a.id]);
+    const sortedTeams = [...t.teams].sort((a, b) => {
+      const sa = stats[a.id], sb = stats[b.id];
+      return sb.won !== sa.won ? sb.won - sa.won : sb.pd - sa.pd;
+    });
+
+    const formatMatch = (m: Match) => {
+      const a = getTeamName(m.teamAId);
+      const b = getTeamName(m.teamBId);
+      const [winner, loser, ws, ls] = m.scoreA > m.scoreB
+        ? [a, b, m.scoreA, m.scoreB]
+        : [b, a, m.scoreB, m.scoreA];
+      return `${winner} def. ${loser}  ${ws}–${ls}`;
+    };
+
+    const sep = '─────────────────';
+    const date = new Date(t.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    let text = `🏸 ${t.name.toUpperCase()} — SESSION REPORT\n`;
+    text += `📅 ${date}\n`;
+
+    if (champion) {
+      text += `\n🏆 CHAMPIONS\n${champion.player1.name} & ${champion.player2.name}\n`;
+    }
+
+    if (finalMatch) {
+      text += `\n${sep}\n🏆 FINAL\n${sep}\n`;
+      text += `${formatMatch(finalMatch)}\n`;
+    }
+
+    const sfMatches = t.matches.filter(m => m.phase === 'semi-finals' && m.isCompleted);
+    if (sfMatches.length > 0) {
+      text += `\n${sep}\n⚔️ SEMI-FINALS\n${sep}\n`;
+      sfMatches.forEach(m => { text += `${formatMatch(m)}\n`; });
+    }
+
+    text += `\n${sep}\n📊 STANDINGS\n${sep}\n`;
     sortedTeams.forEach((team, i) => {
-      text += `${i + 1}. ${team.player1.name}/${team.player2.name} (${teamWins[team.id]}W)\n`;
+      const s = stats[team.id];
+      const pd = s.pd > 0 ? `+${s.pd}` : `${s.pd}`;
+      text += `${i + 1}. ${team.player1.name}/${team.player2.name}  ${s.won}W ${s.lost}L ${pd}\n`;
     });
 
-    text += `\nTracked via *8:30 Shuttlers*`;
+    const rrMatches = t.matches.filter(m => m.phase === 'round-robin' && m.isCompleted);
+    if (rrMatches.length > 0) {
+      text += `\n${sep}\n🎾 ROUND ROBIN\n${sep}\n`;
+      rrMatches.forEach(m => { text += `${formatMatch(m)}\n`; });
+    }
+
+    text += `\nTracked via 8:30 Shuttlers 🏸`;
 
     if (navigator.share) {
       navigator.share({ title: t.name, text }).catch(() => {
