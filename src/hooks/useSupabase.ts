@@ -76,14 +76,30 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
         fetchPlayers();
     }, [fetchPlayers]);
 
+    // Realtime subscription — all clients auto-refresh when any player row changes
+    useEffect(() => {
+        if (!isSupabaseConfigured() || !supabase) return;
+
+        const channel = supabase
+            .channel('players-realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, () => {
+                fetchPlayers();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [fetchPlayers]);
+
     // Update players in Supabase
-    const updatePlayers = useCallback(async (newPlayers: Player[]) => {
+    const updatePlayers = useCallback(async (newPlayers: Player[]): Promise<boolean> => {
         setPlayers(newPlayers);
 
         // Also save to localStorage as backup
         localStorage.setItem('shuttlers_players', JSON.stringify(newPlayers));
 
-        if (!isSupabaseConfigured() || !supabase) return;
+        if (!isSupabaseConfigured() || !supabase) return false;
 
         try {
             // Upsert all players
@@ -96,15 +112,17 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                         points: p.points,
                         rank: p.rank,
                         previous_rank: p.previousRank,
-                        is_checked_in: p.isCheckedIn,
-                        type: p.type
+                        is_checked_in: p.isCheckedIn ?? false,
+                        type: p.type ?? 'member'
                     })),
                     { onConflict: 'id' }
                 );
 
             if (error) throw error;
+            return true;
         } catch (err) {
-            console.error('Error updating players:', err);
+            console.error('Error updating players in Supabase:', err);
+            return false;
         }
     }, []);
 

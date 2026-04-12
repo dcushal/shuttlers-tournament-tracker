@@ -257,6 +257,12 @@ const App: React.FC = () => {
   };
 
 
+  const handleSyncRankings = async (): Promise<boolean> => {
+    const reRankedPlayers = recalculatePlayerStats(players, tournaments);
+    const result = await setPlayers(reRankedPlayers);
+    return result ?? false;
+  };
+
   const handleDeleteTournament = async (id: string) => {
     if (confirm("Are you sure you want to delete this tournament entry? This will permanently affect rankings and stats.")) {
       // 1. Identify the tournament to be deleted
@@ -446,7 +452,12 @@ const App: React.FC = () => {
           )}
 
           {activeTab === 'rankings' && (
-            <Rankings players={tournamentPlayers} tournaments={tournaments} />
+            <Rankings
+              players={tournamentPlayers}
+              tournaments={tournaments}
+              isAdmin={user.role === 'admin'}
+              onSyncRankings={handleSyncRankings}
+            />
           )}
 
           {activeTab === 'history' && (

@@ -1,10 +1,12 @@
-import React, { useMemo } from 'react';
-import { Trophy, Medal, Crown, Info, Zap, Target, Star } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { Trophy, Medal, Crown, Info, Zap, Target, Star, RefreshCw } from 'lucide-react';
 import { Player, Tournament } from '../types';
 
 interface RankingsProps {
     players: Player[];
     tournaments: Tournament[];
+    isAdmin?: boolean;
+    onSyncRankings?: () => Promise<boolean>;
 }
 
 interface PlayerStats {
@@ -17,7 +19,19 @@ interface PlayerStats {
     tournamentsPlayed: number;
 }
 
-const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
+const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSyncRankings }) => {
+    const [syncing, setSyncing] = useState(false);
+    const [syncStatus, setSyncStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+    const handleSync = async () => {
+        if (!onSyncRankings || syncing) return;
+        setSyncing(true);
+        setSyncStatus('idle');
+        const ok = await onSyncRankings();
+        setSyncing(false);
+        setSyncStatus(ok ? 'success' : 'error');
+        setTimeout(() => setSyncStatus('idle'), 3000);
+    };
     const playerPerformanceStats = useMemo(() => {
         const stats: Record<string, { wins: number; matches: number; totalDiff: number }> = {};
         players.forEach(p => stats[p.id] = { wins: 0, matches: 0, totalDiff: 0 });
@@ -45,8 +59,17 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
     }, [players, tournaments]);
 
     const sortedPlayers = useMemo(() => {
-        return [...players].sort((a, b) => a.rank - b.rank);
-    }, [players]);
+        return [...players].sort((a, b) => {
+            if (b.points !== a.points) return b.points - a.points;
+            // Tiebreaker: win rate, then total point diff
+            const statsA = playerPerformanceStats[a.id];
+            const statsB = playerPerformanceStats[b.id];
+            const wrA = statsA && statsA.matches > 0 ? statsA.wins / statsA.matches : 0;
+            const wrB = statsB && statsB.matches > 0 ? statsB.wins / statsB.matches : 0;
+            if (wrB !== wrA) return wrB - wrA;
+            return (statsB?.totalDiff ?? 0) - (statsA?.totalDiff ?? 0);
+        });
+    }, [players, playerPerformanceStats]);
 
     return (
         <div className="space-y-6 pb-24">
@@ -55,8 +78,26 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments }) => {
                     <Trophy className="text-green-500" />
                     Global Rankings
                 </h2>
-                <div className="text-[10px] font-black text-zinc-400 bg-white/5 backdrop-blur-xl px-3 py-1 rounded-full border border-white/10 uppercase tracking-widest">
-                    SEASON 2026
+                <div className="flex items-center gap-2">
+                    {isAdmin && onSyncRankings && (
+                        <button
+                            onClick={handleSync}
+                            disabled={syncing}
+                            className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border transition-all ${
+                                syncStatus === 'success'
+                                    ? 'bg-green-500/20 border-green-500/40 text-green-400'
+                                    : syncStatus === 'error'
+                                    ? 'bg-red-500/20 border-red-500/40 text-red-400'
+                                    : 'bg-white/5 border-white/10 text-zinc-400 hover:border-green-500/30 hover:text-green-400'
+                            }`}
+                        >
+                            <RefreshCw size={10} className={syncing ? 'animate-spin' : ''} />
+                            {syncing ? 'Syncing…' : syncStatus === 'success' ? 'Synced!' : syncStatus === 'error' ? 'Failed' : 'Sync'}
+                        </button>
+                    )}
+                    <div className="text-[10px] font-black text-zinc-400 bg-white/5 backdrop-blur-xl px-3 py-1 rounded-full border border-white/10 uppercase tracking-widest">
+                        SEASON 2026
+                    </div>
                 </div>
             </div>
 
