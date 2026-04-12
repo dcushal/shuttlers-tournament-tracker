@@ -45,7 +45,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, players }) => {
     <div className="flex flex-col items-center justify-center min-h-[80vh] px-6">
       <div className="w-full max-w-sm">
         <div className="text-center flex flex-col items-center">
-          <div className="w-96 h-64 flex items-center justify-center overflow-hidden mb-[-2rem] animate-float">
+          <div className="w-96 h-64 flex items-center justify-center mb-[-2rem] animate-float">
             <Logo className="w-full h-full" />
           </div>
           <div className="space-y-1 relative z-10 mb-8">
