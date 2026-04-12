@@ -7,7 +7,7 @@ const Logo: React.FC<{ className?: string }> = ({ className = "w-10 h-10" }) => 
       <img
         src="/logo.png"
         alt="8:30 Shuttlers Logo"
-        className="w-full h-full object-contain scale-[1.6]"
+        className="w-full h-full object-contain"
       />
     </div>
   );
