@@ -64,11 +64,36 @@ const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) 
       return `${winner} def. ${loser}  ${ws}–${ls}`;
     };
 
+    const generateHeadline = () => {
+      if (!champion || !finalMatch || !championId) return null;
+      const champName = `${champion.player1.name} & ${champion.player2.name}`;
+      const finalMargin = Math.abs(finalMatch.scoreA - finalMatch.scoreB);
+      const rrAll = t.matches.filter(m => m.phase === 'round-robin' && m.isCompleted);
+      const champRR = rrAll.filter(m => m.teamAId === championId || m.teamBId === championId);
+      const champRRWins = champRR.filter(m =>
+        (m.teamAId === championId && m.scoreA > m.scoreB) ||
+        (m.teamBId === championId && m.scoreB > m.scoreA)
+      ).length;
+      const unbeaten = champRR.length > 0 && champRRWins === champRR.length;
+      const closeFinal = finalMargin <= 2;
+      const dominantFinal = finalMargin >= 7;
+
+      if (unbeaten && dominantFinal) return `${champName} were untouchable today — unbeaten all day and dominant in the final.`;
+      if (unbeaten && closeFinal) return `${champName} went unbeaten in the round robin but had to dig deep in a nervy final.`;
+      if (unbeaten) return `${champName} backed up a flawless round robin with a solid final to take the title.`;
+      if (!unbeaten && closeFinal) return `${champName} dropped a game in the round robin but held their nerve in a tight final to win.`;
+      if (!unbeaten && dominantFinal) return `${champName} recovered from a round robin loss to put in a dominant final performance.`;
+      if (stats[championId].pd >= 20) return `${champName} outscored opponents by ${stats[championId].pd} points across the day to claim the title.`;
+      return `${champName} came out on top after a competitive day of badminton.`;
+    };
+
     const sep = '─────────────────';
     const date = new Date(t.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    const headline = generateHeadline();
 
     let text = `🏸 ${t.name.toUpperCase()} — SESSION REPORT\n`;
     text += `📅 ${date}\n`;
+    if (headline) text += `\n${headline}\n`;
 
     if (champion) {
       text += `\n🏆 CHAMPIONS\n${champion.player1.name} & ${champion.player2.name}\n`;
