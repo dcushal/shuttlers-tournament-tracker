@@ -4,8 +4,9 @@ export interface Player {
   points: number;
   rank: number;
   previousRank: number;
+  startingPoints?: number; // Fixed baseline — recalculation always starts here
   isCheckedIn?: boolean;
-  type?: 'member' | 'guest'; // New field for casual mode
+  type?: 'member' | 'guest';
 }
 
 export interface Team {

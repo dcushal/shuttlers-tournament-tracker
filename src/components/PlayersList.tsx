@@ -72,6 +72,7 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
       points: newPlayerPoints,
       rank: players.length + 1,
       previousRank: players.length + 1,
+      startingPoints: newPlayerPoints,
       type: 'member',
       isCheckedIn: false
     };

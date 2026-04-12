@@ -1,24 +1,13 @@
 import { Player, Tournament } from '../types';
 
-// Initial rankings as a fallback/starting point
-const INITIAL_RANKINGS: { name: string; points: number }[] = [
-    { name: "Viru", points: 100 },
-    { name: "Hritik", points: 90 },
-    { name: "Aldrich", points: 80 },
-    { name: "Kushal", points: 70 },
-    { name: "Dev", points: 60 },
-    { name: "Saptarishi", points: 50 },
-    { name: "Sam", points: 40 },
-    { name: "Sagar", points: 30 },
-    { name: "Rohan", points: 20 },
-    { name: "Sarvesh", points: 10 }
-];
+// Only replay tournaments from this date onwards.
+// Each player's startingPoints encodes all history before this date.
+const BASELINE_DATE = new Date('2026-04-12');
 
 export function recalculatePlayerStats(players: Player[], tournaments: Tournament[]): Player[] {
-    // 1. Filter for completed tournaments and sort by date (oldest first)
-    // We assume 'created_at' or 'date' can be used. using 'date' here as it's more reliable for user-set dates.
+    // 1. Filter for completed tournaments on/after BASELINE_DATE, sorted oldest first
     const completedTournaments = tournaments
-        .filter(t => t.status === 'completed')
+        .filter(t => t.status === 'completed' && new Date(t.date) >= BASELINE_DATE)
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
     // Helper to calculate points for a specific set of tournaments
@@ -27,9 +16,8 @@ export function recalculatePlayerStats(players: Player[], tournaments: Tournamen
         const currentStats: Record<string, { points: number; matches: number; wins: number; totalDiff: number }> = {};
 
         persons.forEach(p => {
-            const initial = INITIAL_RANKINGS.find(ir => ir.name.toLowerCase() === p.name.toLowerCase());
             currentStats[p.id] = {
-                points: initial ? initial.points : 10,
+                points: p.startingPoints ?? 10,
                 matches: 0,
                 wins: 0,
                 totalDiff: 0

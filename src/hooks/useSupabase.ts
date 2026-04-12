@@ -39,6 +39,7 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                     points: p.points,
                     rank: p.rank,
                     previousRank: p.previous_rank,
+                    startingPoints: p.starting_points ?? 10,
                     isCheckedIn: p.is_checked_in,
                     type: p.type
                 }));
@@ -112,6 +113,7 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                         points: p.points,
                         rank: p.rank,
                         previous_rank: p.previousRank,
+                        starting_points: p.startingPoints ?? 10,
                         is_checked_in: p.isCheckedIn ?? false,
                         type: p.type ?? 'member'
                     })),
