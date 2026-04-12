@@ -18,7 +18,7 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
   const [newPlayerPoints, setNewPlayerPoints] = useState(10);
 
   const playerStats = useMemo(() => {
-    const stats: Record<string, { form: ('W' | 'L')[], titles: number, matches: number }> = {};
+    const stats: Record<string, { form: ('W' | 'L')[], titles: number }> = {};
 
     // Process Titles
     tournaments.filter(t => t.status === 'completed').forEach(t => {
@@ -28,17 +28,17 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
         const winnerTeam = t.teams.find(tm => tm.id === winnerId);
         if (winnerTeam) {
           [winnerTeam.player1.id, winnerTeam.player2.id].forEach(pid => {
-            if (!stats[pid]) stats[pid] = { form: [], titles: 0, matches: 0 };
+            if (!stats[pid]) stats[pid] = { form: [], titles: 0 };
             stats[pid].titles++;
           });
         }
       }
     });
 
-    // Process Form + Match Count
+    // Process Form
     const sorted = [...tournaments].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     players.forEach(player => {
-      if (!stats[player.id]) stats[player.id] = { form: [], titles: 0, matches: 0 };
+      if (!stats[player.id]) stats[player.id] = { form: [], titles: 0 };
       const form: ('W' | 'L')[] = [];
 
       for (const t of sorted) {
@@ -49,7 +49,6 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
           t.teams.find(tm => tm.id === m.teamBId)?.player1.id === player.id ||
           t.teams.find(tm => tm.id === m.teamBId)?.player2.id === player.id
         ));
-        stats[player.id].matches += playerMatches.length;
 
         playerMatches.reverse().forEach(m => {
           if (form.length >= 5) return;
@@ -180,22 +179,17 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex gap-1.5">
-                        {stats?.form.length > 0 ? (
-                          stats.form.map((res, i) => (
-                            <div
-                              key={i}
-                              className={`w-2 h-2 rounded-full ${res === 'W' ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]' : 'bg-red-500/40'}`}
-                              title={res === 'W' ? 'Win' : 'Loss'}
-                            />
-                          ))
-                        ) : (
-                          <span className="text-[8px] text-zinc-700 font-black uppercase tracking-widest">No Recent Matches</span>
-                        )}
-                      </div>
-                      {stats?.matches > 0 && (
-                        <span className="text-[8px] text-zinc-600 font-black uppercase tracking-widest">{stats.matches}M</span>
+                    <div className="flex gap-1.5 mt-1">
+                      {stats?.form.length > 0 ? (
+                        stats.form.map((res, i) => (
+                          <div
+                            key={i}
+                            className={`w-2 h-2 rounded-full ${res === 'W' ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.5)]' : 'bg-red-500/40'}`}
+                            title={res === 'W' ? 'Win' : 'Loss'}
+                          />
+                        ))
+                      ) : (
+                        <span className="text-[8px] text-zinc-700 font-black uppercase tracking-widest">No Recent Matches</span>
                       )}
                     </div>
                   </div>

@@ -161,7 +161,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSy
                                     </div>
 
                                     <div className="flex-1">
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 flex-wrap">
                                             <h3 className="text-lg font-black text-white uppercase tracking-tight">{player.name}</h3>
                                             {rankDiff !== 0 && (
                                                 <span className={`text-[10px] font-black flex items-center gap-0.5 ${rankDiff > 0 ? 'text-green-500' : 'text-red-500'}`}>
@@ -170,6 +170,11 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSy
                                             )}
                                             {rankDiff === 0 && (
                                                 <span className="text-[10px] font-black text-zinc-700">➖</span>
+                                            )}
+                                            {playerPerformanceStats[player.id]?.matches > 0 && (
+                                                <span className="text-[10px] font-bold text-zinc-600">
+                                                    {playerPerformanceStats[player.id].matches} matches
+                                                </span>
                                             )}
                                         </div>
                                         <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-0.5">
