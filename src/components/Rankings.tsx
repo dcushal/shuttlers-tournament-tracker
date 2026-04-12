@@ -173,85 +173,126 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSy
             <div className="mt-8 space-y-4 px-1 pb-12">
                 <div className="flex items-center gap-2 text-zinc-500 mb-2 px-1">
                     <Info size={14} />
-                    <h3 className="text-[10px] font-black uppercase tracking-widest">Global Scoring Logic</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-widest">How Points Work</h3>
                 </div>
 
                 <div className="liquid-card-elevated rounded-[2rem] p-6 space-y-6 shadow-2xl">
-                    <div className="grid grid-cols-1 gap-6">
-                        {/* Point 1: Placement */}
-                        <div className="space-y-3">
-                            <h4 className="text-[11px] font-black text-white uppercase flex items-center gap-2 tracking-tight">
-                                <Trophy size={14} className="text-yellow-500" /> 1. Tournament Placement
-                            </h4>
-                            <div className="grid grid-cols-5 gap-2">
-                                {[
-                                    { rank: '1st', pts: '+10' },
-                                    { rank: '2nd', pts: '+5' },
-                                    { rank: '3rd', pts: '0' },
-                                    { rank: '4th', pts: '-5' },
-                                    { rank: '5th', pts: '-10' }
-                                ].map((item) => (
-                                    <div key={item.rank} className="bg-white/5 border border-white/10 p-2 rounded-xl text-center">
-                                        <p className="text-[8px] font-black text-zinc-500 uppercase mb-1">{item.rank}</p>
-                                        <p className={`text-[10px] font-black ${item.pts.startsWith('+') ? 'text-green-500' : item.pts.startsWith('-') ? 'text-red-500' : 'text-zinc-400'}`}>{item.pts}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
 
-                        {/* Point 2: Match Win Points */}
-                        <div className="space-y-3">
-                            <h4 className="text-[11px] font-black text-white uppercase flex items-center gap-2 tracking-tight">
-                                <Trophy size={14} className="text-orange-500" /> 2. Match Win Points
-                            </h4>
-                            <div className="bg-white/5 border border-white/10 p-4 rounded-2xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-3 opacity-10">
-                                    <Trophy size={32} className="text-orange-500" />
-                                </div>
-                                <p className="text-[10px] font-bold text-zinc-400 leading-relaxed relative z-10">
-                                    Each match won in the group stage awards <span className="text-white">+2 points</span>.
-                                </p>
-                                <div className="mt-2 py-1 px-3 bg-orange-500/10 border border-orange-500/20 rounded-lg inline-block">
-                                    <code className="text-[9px] font-black text-orange-500 uppercase tracking-wider">3 Wins = +6 Points</code>
-                                </div>
+                    {/* Rule 1: Placement */}
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-yellow-500/20 flex items-center justify-center">
+                                <span className="text-[9px] font-black text-yellow-400">1</span>
                             </div>
+                            <h4 className="text-[11px] font-black text-white uppercase tracking-tight">Placement Points</h4>
                         </div>
+                        <p className="text-[10px] text-zinc-400 leading-relaxed">
+                            Only the <span className="text-white font-black">top half</span> of teams earn placement points. Bottom half gets nothing. The bigger the field, the bigger the reward for finishing high.
+                        </p>
+                        {/* Reference table */}
+                        <div className="overflow-hidden rounded-2xl border border-white/10">
+                            <table className="w-full text-center">
+                                <thead>
+                                    <tr className="bg-white/5">
+                                        <td className="text-[8px] font-black text-zinc-500 uppercase py-2 px-2">Place</td>
+                                        {[4,5,6,7,8,10].map(n => (
+                                            <td key={n} className="text-[8px] font-black text-zinc-500 uppercase py-2">{n}T</td>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {[
+                                        { rank: '1st', vals: [8, 10, 12, 14, 16, 20] },
+                                        { rank: '2nd', vals: [4, 7, 8, 11, 12, 16] },
+                                        { rank: '3rd', vals: [0, 3, 4, 7, 8, 12] },
+                                        { rank: '4th', vals: [0, 0, 0, 4, 4, 8] },
+                                        { rank: '5th', vals: ['-', 0, 0, 0, 0, 4] },
+                                        { rank: '6th+', vals: ['-', '-', 0, 0, 0, 0] },
+                                    ].map((row, i) => (
+                                        <tr key={i} className={i % 2 === 0 ? 'bg-black/20' : ''}>
+                                            <td className="text-[8px] font-black text-zinc-400 py-1.5 px-2">{row.rank}</td>
+                                            {row.vals.map((v, j) => (
+                                                <td key={j} className={`text-[9px] font-black py-1.5 ${v === 0 || v === '-' ? 'text-zinc-600' : 'text-green-400'}`}>
+                                                    {v === 0 ? '0' : v === '-' ? '—' : `+${v}`}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <p className="text-[9px] text-zinc-600 italic">T = number of teams in that tournament</p>
+                    </div>
 
-                        {/* Point 3: Performance */}
-                        <div className="space-y-3">
-                            <h4 className="text-[11px] font-black text-white uppercase flex items-center gap-2 tracking-tight">
-                                <Zap size={14} className="text-blue-400" /> 3. Performance Bonus
-                            </h4>
-                            <div className="bg-white/5 border border-white/10 p-4 rounded-2xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-3 opacity-10">
-                                    <Target size={32} className="text-blue-400" />
-                                </div>
-                                <p className="text-[10px] font-bold text-zinc-400 leading-relaxed relative z-10">
-                                    Positive Point Difference is divided by 2 and added to your score. Negative difference does not result in a penalty.
-                                </p>
-                                <div className="mt-2 py-1 px-3 bg-blue-500/10 border border-blue-500/20 rounded-lg inline-block">
-                                    <code className="text-[9px] font-black text-blue-400 uppercase tracking-wider">Score = Base + (Diff &gt; 0 ? Diff / 2 : 0)</code>
-                                </div>
+                    <div className="h-px bg-zinc-800" />
+
+                    {/* Rule 2: Match Wins */}
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-orange-500/20 flex items-center justify-center">
+                                <span className="text-[9px] font-black text-orange-400">2</span>
                             </div>
+                            <h4 className="text-[11px] font-black text-white uppercase tracking-tight">Match Wins</h4>
                         </div>
-
-                        {/* Practical Example */}
-                        <div className="bg-green-500/5 border border-green-500/10 p-4 rounded-2xl space-y-2">
-                            <p className="text-[9px] font-black text-green-500 uppercase tracking-widest">Example Calculation:</p>
-                            <p className="text-[11px] text-zinc-400 font-medium leading-relaxed">
-                                If <span className="text-white font-black">PLAYER</span> comes 1st <span className="text-green-500 font-bold">(+10)</span>, wins 3 matches <span className="text-orange-500 font-bold">(3x2 = +6)</span>, and finishes with <span className="text-white font-black">+20</span> point difference <span className="text-blue-400 font-bold">(20/2 = +10)</span>...
-                            </p>
-                            <p className="text-xs font-black text-white uppercase pt-1 tracking-tight">
-                                Total Global Gain: <span className="text-green-500 font-black">10 + 6 + 10 = +26 Points</span>
-                            </p>
+                        <p className="text-[10px] text-zinc-400 leading-relaxed">
+                            Every match you win gives you <span className="text-white font-black">+2 points</span>, regardless of your final placement.
+                        </p>
+                        <div className="flex gap-2 pt-1">
+                            {[1,2,3,4].map(w => (
+                                <div key={w} className="flex-1 bg-orange-500/10 border border-orange-500/20 rounded-xl py-1.5 text-center">
+                                    <p className="text-[8px] text-zinc-500">{w}W</p>
+                                    <p className="text-[10px] font-black text-orange-400">+{w*2}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    <div className="pt-4 border-t border-zinc-800 flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-zinc-600">
-                            <Star size={12} strokeWidth={3} />
-                            <p className="text-[8px] font-black uppercase tracking-[0.2em]">Tie breaker: Win Rate % &gt; Total Pnt. Diff</p>
+                    <div className="h-px bg-zinc-800" />
+
+                    {/* Rule 3: Performance Bonus */}
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
+                                <span className="text-[9px] font-black text-blue-400">3</span>
+                            </div>
+                            <h4 className="text-[11px] font-black text-white uppercase tracking-tight">Performance Bonus</h4>
                         </div>
+                        <p className="text-[10px] text-zinc-400 leading-relaxed">
+                            Win your matches by big margins and earn extra. Your total <span className="text-white font-black">positive point difference ÷ 2</span> is added as a bonus. Losing by a lot has no extra penalty.
+                        </p>
+                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 flex items-center justify-between">
+                            <span className="text-[9px] text-zinc-400">+30 point diff across all matches</span>
+                            <span className="text-[10px] font-black text-blue-400">+15 bonus pts</span>
+                        </div>
+                    </div>
+
+                    <div className="h-px bg-zinc-800" />
+
+                    {/* Example */}
+                    <div className="bg-green-500/5 border border-green-500/10 rounded-2xl p-4 space-y-3">
+                        <p className="text-[9px] font-black text-green-500 uppercase tracking-widest">Example — 6 Team Tournament</p>
+                        <div className="space-y-1.5">
+                            {[
+                                { label: '1st place (6 teams)', val: '+12', color: 'text-yellow-400' },
+                                { label: '3 match wins', val: '+6', color: 'text-orange-400' },
+                                { label: '+24 point diff bonus', val: '+12', color: 'text-blue-400' },
+                            ].map((row, i) => (
+                                <div key={i} className="flex items-center justify-between">
+                                    <span className="text-[10px] text-zinc-400">{row.label}</span>
+                                    <span className={`text-[10px] font-black ${row.color}`}>{row.val}</span>
+                                </div>
+                            ))}
+                            <div className="h-px bg-zinc-700 my-1" />
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-black text-white uppercase">Total earned</span>
+                                <span className="text-[12px] font-black text-green-400">+30 pts</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-zinc-600">
+                        <Star size={10} strokeWidth={3} />
+                        <p className="text-[8px] font-black uppercase tracking-widest">Tiebreaker: Win Rate → Point Difference</p>
                     </div>
                 </div>
             </div>

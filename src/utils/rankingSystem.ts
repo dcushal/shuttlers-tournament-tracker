@@ -79,22 +79,38 @@ export function recalculatePlayerStats(players: Player[], tournaments: Tournamen
             );
 
             // 2. Award Points
-            const pointRewards = [10, 5, 0, -5, -10];
+            const numTeams = sortedStandings.length;
+            const tDate = new Date(t.date);
 
-            // scoring V2: Effective from Feb 6, 2026
-            // Rules: Placement points + Performance Bonus + (Match Wins * 2)
-            const SCORING_V2_DATE = new Date('2026-02-06T19:00:00'); // 7 PM IST approx
-            const isV2 = new Date(t.date) >= SCORING_V2_DATE;
+            // V1: before Feb 6 2026 — fixed 5-team table, no match win bonus
+            // V2: Feb 6 2026 to Apr 11 2026 — fixed 5-team table + match win bonus
+            // V3: from Apr 12 2026 (Shuttle Showdown) — scaled table, top half earns, no negatives
+            const SCORING_V2_DATE = new Date('2026-02-06T19:00:00');
+            const SCORING_V3_DATE = new Date('2026-04-12');
+            const isV2OrLater = tDate >= SCORING_V2_DATE;
+            const isV3 = tDate >= SCORING_V3_DATE;
+
+            const getPlacementPoints = (rank: number): number => {
+                if (isV3) {
+                    // Top ceil(N/2) teams earn. 1st = N×2, steps proportional, rest = 0.
+                    const numEarners = Math.ceil(numTeams / 2);
+                    if (rank > numEarners) return 0;
+                    return Math.round((numTeams * 2) * (numEarners + 1 - rank) / numEarners);
+                } else {
+                    // Legacy fixed table (5-team assumption, can be negative)
+                    const legacy = [10, 5, 0, -5, -10];
+                    return legacy[rank - 1] ?? 0;
+                }
+            };
 
             sortedStandings.forEach((standing, index) => {
-                const reward = pointRewards[index] || 0;
+                const reward = getPlacementPoints(index + 1);
                 const performanceBonus = standing.pointDiff > 0 ? standing.pointDiff / 2 : 0;
 
-                // V2: Add 2 points per match win
-                const matchWinBonus = isV2 ? (standing.won * 2) : 0;
+                // V2+: Add 2 points per match win
+                const matchWinBonus = isV2OrLater ? (standing.won * 2) : 0;
 
-                // Ensure bonus is only added if result is positive (safety check, though logic says it is)
-                const totalPointsAwarded = reward + (performanceBonus > 0 ? performanceBonus : 0) + matchWinBonus;
+                const totalPointsAwarded = reward + performanceBonus + matchWinBonus;
 
                 const team = t.teams.find(tm => tm.id === standing.teamId);
                 if (team) {
