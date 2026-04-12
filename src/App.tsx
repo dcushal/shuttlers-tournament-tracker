@@ -258,8 +258,9 @@ const App: React.FC = () => {
 
 
   const handleSyncRankings = async (): Promise<boolean> => {
-    const reRankedPlayers = recalculatePlayerStats(players, tournaments);
-    const result = await setPlayers(reRankedPlayers);
+    // Push current local state to Supabase as-is. No recalculation.
+    // Recalculation happens only when a tournament is completed.
+    const result = await setPlayers([...players]);
     return result ?? false;
   };
 
