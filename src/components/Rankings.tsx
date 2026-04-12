@@ -27,7 +27,7 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSy
         const captainCount = Math.floor(sortedPlayers.length / 2);
         const date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
-        let text = `🏸 8:30 SHUTTLERS — RANKINGS\n`;
+        let text = `🏸 8:30 SHUTTLERS — LATEST RANKINGS\n`;
         text += `📅 ${date}  •  SEASON 2026\n\n`;
 
         sortedPlayers.forEach((player, i) => {
