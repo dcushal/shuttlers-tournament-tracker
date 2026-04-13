@@ -7,6 +7,7 @@ export interface Player {
   startingPoints?: number; // Fixed baseline — recalculation always starts here
   isCheckedIn?: boolean;
   type?: 'member' | 'guest';
+  avatarUrl?: string;
 }
 
 export interface Team {
