@@ -15,15 +15,14 @@ interface Props {
   currentPlayerId?: string;
 }
 
-const AvatarImg: React.FC<{ url: string; initial: string }> = ({ url, initial }) => {
+const AvatarImg: React.FC<{ url: string; initial: string; name?: string }> = ({ url, initial, name }) => {
   const [error, setError] = React.useState(false);
   return error ? (
     <span>{initial}</span>
   ) : (
     <img
       src={url}
-      alt=""
-      key={url}
+      alt={name ?? initial}
       className="w-full h-full object-cover"
       onError={() => setError(true)}
     />
@@ -180,7 +179,7 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
                       {isCheckedIn ? (
                         <CheckCircle2 size={20} />
                       ) : player.avatarUrl ? (
-                        <AvatarImg url={player.avatarUrl} initial={player.name.charAt(0).toUpperCase()} />
+                        <AvatarImg key={player.avatarUrl} url={player.avatarUrl} initial={player.name.charAt(0).toUpperCase()} name={player.name} />
                       ) : (
                         player.name.charAt(0).toUpperCase()
                       )}
