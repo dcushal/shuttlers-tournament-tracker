@@ -216,15 +216,15 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                 .from('avatars')
                 .getPublicUrl(playerId);
 
-            // Store clean URL in DB; cache-buster only for local state so re-upload shows immediately
+            // Store cache-busted URL in DB so restarts always get the latest image
+            const urlWithBust = `${publicUrl}?t=${Date.now()}`;
             const { error: updateError } = await supabase
                 .from('players')
-                .update({ avatar_url: publicUrl })
+                .update({ avatar_url: urlWithBust })
                 .eq('id', playerId);
 
             if (updateError) throw updateError;
 
-            const urlWithBust = `${publicUrl}?t=${Date.now()}`;
             setPlayers(prev => prev.map(p =>
                 p.id === playerId ? { ...p, avatarUrl: urlWithBust } : p
             ));
