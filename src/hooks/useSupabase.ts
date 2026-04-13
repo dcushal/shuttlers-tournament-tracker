@@ -232,7 +232,7 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
             return urlWithBust;
         } catch (err) {
             console.error('Error uploading avatar:', err);
-            return null;
+            throw err;
         }
     }, []);
 

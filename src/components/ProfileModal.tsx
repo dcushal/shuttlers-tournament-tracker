@@ -20,12 +20,19 @@ const ProfileModal: React.FC<Props> = ({ player, onClose, onUpload }) => {
     e.target.value = '';
     setUploading(true);
     setError(null);
-    const result = await onUpload(player.id, file);
-    setUploading(false);
-    if (result) {
-      onClose();
-    } else {
-      setError('Upload failed. Please try again.');
+    try {
+      const result = await onUpload(player.id, file);
+      setUploading(false);
+      if (result) {
+        onClose();
+      } else {
+        setError('Storage not configured. Create the avatars bucket in Supabase first.');
+      }
+    } catch (err: unknown) {
+      setUploading(false);
+      const msg = err instanceof Error ? err.message
+        : (err as { message?: string })?.message ?? 'Upload failed. Please try again.';
+      setError(msg);
     }
   };
 
