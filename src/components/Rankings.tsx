@@ -2,17 +2,20 @@ import React, { useMemo, useState } from 'react';
 import { Trophy, Medal, Crown, Info, Zap, Target, Star, RefreshCw, Share2 } from 'lucide-react';
 import { Player, Tournament } from '../types';
 
-const AvatarImg: React.FC<{ url?: string; initial: React.ReactNode; name?: string }> = ({ url, initial, name }) => {
+const AvatarImg: React.FC<{ url?: string; initial: React.ReactNode; name?: string; overlay?: React.ReactNode }> = ({ url, initial, name, overlay }) => {
   const [error, setError] = React.useState(false);
   React.useEffect(() => { setError(false); }, [url]);
   if (!url || error) return <>{initial}</>;
   return (
-    <img
-      src={url}
-      alt={name ?? ''}
-      className="w-full h-full object-cover"
-      onError={() => setError(true)}
-    />
+    <>
+      <img
+        src={url}
+        alt={name ?? ''}
+        className="w-full h-full object-cover"
+        onError={() => setError(true)}
+      />
+      {overlay}
+    </>
   );
 };
 
@@ -176,13 +179,12 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSy
                                             url={player.avatarUrl}
                                             initial={index === 0 ? <Crown size={28} strokeWidth={3} /> : displayRank}
                                             name={player.name}
+                                            overlay={index === 0 ? (
+                                                <div className="absolute bottom-0.5 right-0.5 bg-green-500 rounded-full w-5 h-5 flex items-center justify-center shadow">
+                                                    <Crown size={10} strokeWidth={3} className="text-zinc-950" />
+                                                </div>
+                                            ) : undefined}
                                         />
-                                        {/* Crown overlay for #1 when they have a photo */}
-                                        {index === 0 && player.avatarUrl && (
-                                            <div className="absolute bottom-0.5 right-0.5 bg-green-500 rounded-full w-5 h-5 flex items-center justify-center shadow">
-                                                <Crown size={10} strokeWidth={3} className="text-zinc-950" />
-                                            </div>
-                                        )}
                                     </div>
 
                                     <div className="flex-1">

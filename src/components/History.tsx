@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Tournament, Match, Player } from '../types';
 import { Calendar, ChevronDown, ChevronUp, Award, Share2, Zap, ShieldAlert, Trash2 } from 'lucide-react';
 
@@ -28,9 +28,9 @@ const AvatarDot: React.FC<{ playerId: string; name: string; getAvatar: (id: stri
 const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin, players = [] }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const getPlayerAvatar = (playerId: string) => {
+  const getPlayerAvatar = useCallback((playerId: string) => {
     return players.find(p => p.id === playerId)?.avatarUrl;
-  };
+  }, [players]);
 
   if (tournaments.length === 0) {
     return (
