@@ -11,11 +11,13 @@ interface Props {
 const ProfileModal: React.FC<Props> = ({ player, onClose, onUpload }) => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imgError, setImgError] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = '';
     setUploading(true);
     setError(null);
     const result = await onUpload(player.id, file);
@@ -48,12 +50,12 @@ const ProfileModal: React.FC<Props> = ({ player, onClose, onUpload }) => {
         <div className="flex flex-col items-center gap-4">
           <div className="relative">
             <div className="w-24 h-24 rounded-3xl overflow-hidden bg-zinc-800 border border-zinc-700 flex items-center justify-center">
-              {player.avatarUrl ? (
+              {player.avatarUrl && !imgError ? (
                 <img
                   src={player.avatarUrl}
                   alt={player.name}
                   className="w-full h-full object-cover"
-                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  onError={() => setImgError(true)}
                 />
               ) : (
                 <span className="text-3xl font-black text-green-500">
