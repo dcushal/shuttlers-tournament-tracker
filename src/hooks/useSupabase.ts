@@ -176,30 +176,36 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
     const updatePlayerAvatar = useCallback(async (playerId: string, file: File): Promise<string | null> => {
         if (!isSupabaseConfigured() || !supabase) return null;
 
-        // Resize image client-side to max 500x500 JPEG at 85% quality
-        const resized = await new Promise<Blob>((resolve, reject) => {
-            const img = new Image();
-            const objectUrl = URL.createObjectURL(file);
-            img.onload = () => {
-                URL.revokeObjectURL(objectUrl);
-                const MAX = 500;
-                const scale = Math.min(MAX / img.width, MAX / img.height, 1);
-                const canvas = document.createElement('canvas');
-                canvas.width = Math.round(img.width * scale);
-                canvas.height = Math.round(img.height * scale);
-                const ctx = canvas.getContext('2d')!;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                canvas.toBlob(
-                    blob => blob ? resolve(blob) : reject(new Error('Resize failed')),
-                    'image/jpeg',
-                    0.85
-                );
-            };
-            img.onerror = reject;
-            img.src = objectUrl;
-        });
-
         try {
+            const resized = await new Promise<Blob>((resolve, reject) => {
+                const img = new Image();
+                const objectUrl = URL.createObjectURL(file);
+                img.onload = () => {
+                    URL.revokeObjectURL(objectUrl);
+                    const MAX = 500;
+                    const scale = Math.min(MAX / img.width, MAX / img.height, 1);
+                    const canvas = document.createElement('canvas');
+                    canvas.width = Math.round(img.width * scale);
+                    canvas.height = Math.round(img.height * scale);
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        reject(new Error('Could not get canvas context'));
+                        return;
+                    }
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(
+                        blob => blob ? resolve(blob) : reject(new Error('Resize failed')),
+                        'image/jpeg',
+                        0.85
+                    );
+                };
+                img.onerror = (e) => {
+                    URL.revokeObjectURL(objectUrl);
+                    reject(e);
+                };
+                img.src = objectUrl;
+            });
+
             const { error: uploadError } = await supabase.storage
                 .from('avatars')
                 .upload(playerId, resized, { upsert: true, contentType: 'image/jpeg' });
@@ -210,17 +216,15 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                 .from('avatars')
                 .getPublicUrl(playerId);
 
-            // Append cache-buster so re-uploads show immediately
-            const urlWithBust = `${publicUrl}?t=${Date.now()}`;
-
+            // Store clean URL in DB; cache-buster only for local state so re-upload shows immediately
             const { error: updateError } = await supabase
                 .from('players')
-                .update({ avatar_url: urlWithBust })
+                .update({ avatar_url: publicUrl })
                 .eq('id', playerId);
 
             if (updateError) throw updateError;
 
-            // Update local state immediately
+            const urlWithBust = `${publicUrl}?t=${Date.now()}`;
             setPlayers(prev => prev.map(p =>
                 p.id === playerId ? { ...p, avatarUrl: urlWithBust } : p
             ));
