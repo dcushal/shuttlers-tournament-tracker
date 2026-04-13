@@ -1,16 +1,36 @@
 
 import React, { useState } from 'react';
-import { Tournament, Match } from '../types';
+import { Tournament, Match, Player } from '../types';
 import { Calendar, ChevronDown, ChevronUp, Award, Share2, Zap, ShieldAlert, Trash2 } from 'lucide-react';
 
 interface Props {
   tournaments: Tournament[];
   onDeleteTournament?: (id: string) => void;
   isAdmin?: boolean;
+  players?: Player[];
 }
 
-const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) => {
+const AvatarDot: React.FC<{ playerId: string; name: string; getAvatar: (id: string) => string | undefined }> = ({ playerId, name, getAvatar }) => {
+  const [error, setError] = React.useState(false);
+  const url = getAvatar(playerId);
+  React.useEffect(() => { setError(false); }, [url]);
+  return (
+    <div className="w-5 h-5 rounded-full overflow-hidden bg-zinc-800 border border-zinc-700 flex items-center justify-center flex-shrink-0">
+      {url && !error ? (
+        <img src={url} alt={name} className="w-full h-full object-cover" onError={() => setError(true)} />
+      ) : (
+        <span className="text-[7px] font-black text-zinc-400">{name.charAt(0)}</span>
+      )}
+    </div>
+  );
+};
+
+const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin, players = [] }) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const getPlayerAvatar = (playerId: string) => {
+    return players.find(p => p.id === playerId)?.avatarUrl;
+  };
 
   if (tournaments.length === 0) {
     return (
@@ -248,7 +268,11 @@ const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) 
                               const teamB = t.teams.find(tm => tm.id === m.teamBId);
                               return (
                                 <div key={m.id} className="bg-white/5 p-3 rounded-2xl flex items-center justify-between">
-                                  <div className="flex-1">
+                                  <div className="flex-1 flex items-center gap-1.5">
+                                    <div className="flex -space-x-1">
+                                      {teamA?.player1 && <AvatarDot playerId={teamA.player1.id} name={teamA.player1.name} getAvatar={getPlayerAvatar} />}
+                                      {teamA?.player2 && <AvatarDot playerId={teamA.player2.id} name={teamA.player2.name} getAvatar={getPlayerAvatar} />}
+                                    </div>
                                     <span className={`text-[10px] font-black uppercase ${m.scoreA > m.scoreB ? 'text-white' : 'text-zinc-600'}`}>
                                       {teamA?.player1.name} / {teamA?.player2.name}
                                     </span>
@@ -261,10 +285,14 @@ const History: React.FC<Props> = ({ tournaments, onDeleteTournament, isAdmin }) 
                                     </div>
                                     {getMatchBadge(m)}
                                   </div>
-                                  <div className="flex-1 text-right">
+                                  <div className="flex-1 flex items-center justify-end gap-1.5">
                                     <span className={`text-[10px] font-black uppercase ${m.scoreB > m.scoreA ? 'text-white' : 'text-zinc-600'}`}>
                                       {teamB?.player1.name} / {teamB?.player2.name}
                                     </span>
+                                    <div className="flex -space-x-1">
+                                      {teamB?.player1 && <AvatarDot playerId={teamB.player1.id} name={teamB.player1.name} getAvatar={getPlayerAvatar} />}
+                                      {teamB?.player2 && <AvatarDot playerId={teamB.player2.id} name={teamB.player2.name} getAvatar={getPlayerAvatar} />}
+                                    </div>
                                   </div>
                                 </div>
                               );
