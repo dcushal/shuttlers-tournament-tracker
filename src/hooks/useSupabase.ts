@@ -41,7 +41,8 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                     previousRank: p.previous_rank,
                     startingPoints: p.starting_points ?? 10,
                     isCheckedIn: p.is_checked_in,
-                    type: p.type
+                    type: p.type,
+                    avatarUrl: p.avatar_url ?? undefined,
                 }));
 
                 // Supabase is the source of truth for points, rank, and who exists.
@@ -117,6 +118,7 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
                         type: p.type ?? 'member',
                         // Only include starting_points if it's defined — column may not exist yet
                         ...(p.startingPoints !== undefined && { starting_points: p.startingPoints }),
+                        ...(p.avatarUrl !== undefined && { avatar_url: p.avatarUrl }),
                     })),
                     { onConflict: 'id' }
                 );
@@ -171,7 +173,66 @@ export function usePlayers(initialPlayers: Player[] | (() => Player[])) {
         }
     }, []);
 
-    return { players, setPlayers: updatePlayers, addPlayer, deletePlayer, toggleCheckIn, loading, error, refetch: fetchPlayers };
+    const updatePlayerAvatar = useCallback(async (playerId: string, file: File): Promise<string | null> => {
+        if (!isSupabaseConfigured() || !supabase) return null;
+
+        // Resize image client-side to max 500x500 JPEG at 85% quality
+        const resized = await new Promise<Blob>((resolve, reject) => {
+            const img = new Image();
+            const objectUrl = URL.createObjectURL(file);
+            img.onload = () => {
+                URL.revokeObjectURL(objectUrl);
+                const MAX = 500;
+                const scale = Math.min(MAX / img.width, MAX / img.height, 1);
+                const canvas = document.createElement('canvas');
+                canvas.width = Math.round(img.width * scale);
+                canvas.height = Math.round(img.height * scale);
+                const ctx = canvas.getContext('2d')!;
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(
+                    blob => blob ? resolve(blob) : reject(new Error('Resize failed')),
+                    'image/jpeg',
+                    0.85
+                );
+            };
+            img.onerror = reject;
+            img.src = objectUrl;
+        });
+
+        try {
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(playerId, resized, { upsert: true, contentType: 'image/jpeg' });
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(playerId);
+
+            // Append cache-buster so re-uploads show immediately
+            const urlWithBust = `${publicUrl}?t=${Date.now()}`;
+
+            const { error: updateError } = await supabase
+                .from('players')
+                .update({ avatar_url: urlWithBust })
+                .eq('id', playerId);
+
+            if (updateError) throw updateError;
+
+            // Update local state immediately
+            setPlayers(prev => prev.map(p =>
+                p.id === playerId ? { ...p, avatarUrl: urlWithBust } : p
+            ));
+
+            return urlWithBust;
+        } catch (err) {
+            console.error('Error uploading avatar:', err);
+            return null;
+        }
+    }, []);
+
+    return { players, setPlayers: updatePlayers, addPlayer, deletePlayer, toggleCheckIn, updatePlayerAvatar, loading, error, refetch: fetchPlayers };
 }
 
 // ============ TOURNAMENTS HOOK ============
