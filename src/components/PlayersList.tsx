@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Player, Tournament } from '../types';
-import { Plus, Trash2, UserPlus, Trophy, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, UserPlus, Trophy, CheckCircle2, Camera } from 'lucide-react';
 
 interface Props {
   players: Player[];
@@ -11,9 +11,26 @@ interface Props {
   user: { role: 'admin' | 'member'; name: string };
   checkedInIds: string[];
   onToggleCheckIn: (id: string) => void;
+  onOpenProfile: (player: Player) => void;
+  currentPlayerId?: string;
 }
 
-const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddPlayer, deletePlayer: hookDeletePlayer, tournaments, user, checkedInIds, onToggleCheckIn }) => {
+const AvatarImg: React.FC<{ url: string; initial: string }> = ({ url, initial }) => {
+  const [error, setError] = React.useState(false);
+  return error ? (
+    <span>{initial}</span>
+  ) : (
+    <img
+      src={url}
+      alt=""
+      key={url}
+      className="w-full h-full object-cover"
+      onError={() => setError(true)}
+    />
+  );
+};
+
+const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddPlayer, deletePlayer: hookDeletePlayer, tournaments, user, checkedInIds, onToggleCheckIn, onOpenProfile, currentPlayerId }) => {
   const [newPlayerName, setNewPlayerName] = useState('');
   const [newPlayerPoints, setNewPlayerPoints] = useState(10);
 
@@ -156,16 +173,30 @@ const PlayersList: React.FC<Props> = ({ players, setPlayers, addPlayer: hookAddP
               >
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center font-black text-sm transition-all ${isCheckedIn
+                    <div className={`w-12 h-12 rounded-2xl border overflow-hidden flex items-center justify-center font-black text-sm transition-all ${isCheckedIn
                         ? 'bg-green-500 text-zinc-950 border-green-500'
                         : 'bg-zinc-950 border-zinc-800 text-green-500 group-hover:bg-green-500 group-hover:text-zinc-950'
                       }`}>
-                      {isCheckedIn ? <CheckCircle2 size={20} /> : player.name.charAt(0).toUpperCase()}
+                      {isCheckedIn ? (
+                        <CheckCircle2 size={20} />
+                      ) : player.avatarUrl ? (
+                        <AvatarImg url={player.avatarUrl} initial={player.name.charAt(0).toUpperCase()} />
+                      ) : (
+                        player.name.charAt(0).toUpperCase()
+                      )}
                     </div>
                     {stats?.titles > 0 && (
                       <div className="absolute -top-1 -right-1 bg-yellow-500 text-zinc-950 w-5 h-5 rounded-full flex items-center justify-center border-2 border-zinc-900 shadow-lg">
                         <Trophy size={10} strokeWidth={3} />
                       </div>
+                    )}
+                    {(user.role === 'admin' || player.id === currentPlayerId) && (
+                      <button
+                        onClick={e => { e.stopPropagation(); onOpenProfile(player); }}
+                        className="absolute -bottom-1 -right-1 w-5 h-5 bg-zinc-700 hover:bg-green-500 text-white hover:text-zinc-950 rounded-full flex items-center justify-center border border-zinc-600 transition-all shadow"
+                      >
+                        <Camera size={9} strokeWidth={2.5} />
+                      </button>
                     )}
                   </div>
                   <div>
