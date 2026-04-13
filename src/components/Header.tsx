@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Logo from './Logo';
 import { LogOut, ArrowLeft } from 'lucide-react';
 import { Player } from '../types';
@@ -15,6 +15,8 @@ interface Props {
 }
 
 const Header: React.FC<Props> = ({ onLogout, onBackToModes, user, currentPlayer, onOpenProfile }) => {
+  const [avatarError, setAvatarError] = useState(false);
+
   return (
     <header className="liquid-card-elevated py-4 z-40">
       <div className="flex items-center justify-between gap-4">
@@ -46,18 +48,19 @@ const Header: React.FC<Props> = ({ onLogout, onBackToModes, user, currentPlayer,
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Avatar button */}
           {onOpenProfile && (
             <button
+              key={currentPlayer?.avatarUrl ?? 'no-avatar'}
               onClick={onOpenProfile}
               className="w-9 h-9 rounded-xl overflow-hidden bg-zinc-800 border border-zinc-700 flex items-center justify-center hover:border-green-500/50 transition-colors"
+              aria-label={`Open profile for ${user?.name ?? 'player'}`}
             >
-              {currentPlayer?.avatarUrl ? (
+              {currentPlayer?.avatarUrl && !avatarError ? (
                 <img
                   src={currentPlayer.avatarUrl}
-                  alt={user?.name}
+                  alt={user?.name ?? 'Player avatar'}
                   className="w-full h-full object-cover"
-                  onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  onError={() => setAvatarError(true)}
                 />
               ) : (
                 <span className="text-xs font-black text-green-500">
