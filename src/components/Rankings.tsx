@@ -184,8 +184,8 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSy
                                                     <Crown size={10} strokeWidth={3} className="text-zinc-950" />
                                                 </div>
                                             ) : (
-                                                <div className="absolute bottom-0.5 right-0.5 bg-zinc-900/80 rounded-full w-5 h-5 flex items-center justify-center shadow">
-                                                    <span className="text-[9px] font-black text-white">{displayRank}</span>
+                                                <div className="absolute bottom-0.5 right-0.5 bg-zinc-900/80 rounded-full w-6 h-6 flex items-center justify-center shadow">
+                                                    <span className="text-[11px] font-black text-white">{displayRank}</span>
                                                 </div>
                                             )}
                                         />
