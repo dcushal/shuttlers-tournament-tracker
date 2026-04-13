@@ -8,6 +8,7 @@ import TournamentManager from './components/TournamentManager';
 import History from './components/History';
 import Insights from './components/Insights';
 
+import ProfileModal from './components/ProfileModal';
 import ModeSelector from './components/ModeSelector';
 import Header from './components/Header';
 import Rankings from './components/Rankings';
@@ -46,6 +47,7 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'rankings' | 'history' | 'treasury' | 'tournament' | 'players' | 'insights'>('dashboard');
   const [casualTab, setCasualTab] = useState<'home' | 'log' | 'stats' | 'leaderboard' | 'history'>('home');
   const [mode, setMode] = useState<'casual' | 'tournament' | null>(null);
+  const [profileModalPlayer, setProfileModalPlayer] = useState<Player | null>(null);
 
   // Load mode from localStorage if available
   useEffect(() => {
@@ -71,6 +73,7 @@ const App: React.FC = () => {
     addPlayer,
     deletePlayer,
     toggleCheckIn,
+    updatePlayerAvatar,
     loading: playersLoading,
     refetch: refreshPlayers
   } = usePlayers(() => {
@@ -205,6 +208,8 @@ const App: React.FC = () => {
   if (!mode) {
     return <ModeSelector onSelect={handleModeSelect} onLogout={handleLogout} userName={user?.name} />;
   }
+  const currentPlayer = user ? players.find(p => p.name.toLowerCase() === user.name.toLowerCase()) : undefined;
+
   const handleToggleCheckIn = (id: string) => {
     const player = players.find(p => p.id === id);
     if (player) {
@@ -439,7 +444,16 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen text-white font-sans selection:bg-green-500/30">
       <div className="max-w-md mx-auto min-h-screen flex flex-col relative px-4 pt-6">
-        <Header activeTab={activeTab} setActiveTab={setActiveTab} onBackToModes={() => setMode(null)} onLogout={handleLogout} user={user} mode={mode} />
+        <Header
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          onBackToModes={() => setMode(null)}
+          onLogout={handleLogout}
+          user={user}
+          mode={mode}
+          currentPlayer={currentPlayer}
+          onOpenProfile={currentPlayer ? () => setProfileModalPlayer(currentPlayer) : undefined}
+        />
 
         <main className="flex-1 mt-6 mb-[100px]">
           {activeTab === 'dashboard' && (
@@ -466,7 +480,7 @@ const App: React.FC = () => {
           )}
 
           {activeTab === 'history' && (
-            <History tournaments={tournaments} onDelete={handleDeleteTournament} />
+            <History tournaments={tournaments} onDelete={handleDeleteTournament} players={players} />
           )}
 
           {activeTab === 'tournament' && (
@@ -493,6 +507,8 @@ const App: React.FC = () => {
               user={user}
               checkedInIds={checkedInIds}
               onToggleCheckIn={handleToggleCheckIn}
+              onOpenProfile={(player) => setProfileModalPlayer(player)}
+              currentPlayerId={currentPlayer?.id}
             />
           )}
 
@@ -538,6 +554,14 @@ const App: React.FC = () => {
             </button>
           </div>
         </nav>
+
+        {profileModalPlayer && (
+          <ProfileModal
+            player={profileModalPlayer}
+            onClose={() => setProfileModalPlayer(null)}
+            onUpload={updatePlayerAvatar}
+          />
+        )}
       </div>
     </div>
   );
