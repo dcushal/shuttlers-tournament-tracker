@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Trophy, Medal, Crown, Info, Zap, Target, Star, RefreshCw, Share2 } from 'lucide-react';
 import { Player, Tournament } from '../types';
+import { computePlayerPerformanceStats } from '../utils/playerStats';
 
 const AvatarImg: React.FC<{ url?: string; initial: React.ReactNode; name?: string; overlay?: React.ReactNode }> = ({ url, initial, name, overlay }) => {
   const [error, setError] = React.useState(false);
@@ -77,31 +78,10 @@ const Rankings: React.FC<RankingsProps> = ({ players, tournaments, isAdmin, onSy
         setSyncStatus(ok ? 'success' : 'error');
         setTimeout(() => setSyncStatus('idle'), 3000);
     };
-    const playerPerformanceStats = useMemo(() => {
-        const stats: Record<string, { wins: number; matches: number; totalDiff: number }> = {};
-        players.forEach(p => stats[p.id] = { wins: 0, matches: 0, totalDiff: 0 });
-
-        tournaments.forEach(t => {
-            t.matches.filter(m => m.isCompleted).forEach(m => {
-                const teamA = t.teams.find(tm => tm.id === m.teamAId);
-                const teamB = t.teams.find(tm => tm.id === m.teamBId);
-                if (teamA && teamB) {
-                    const winnerId = m.scoreA > m.scoreB ? m.teamAId : m.teamBId;
-                    [teamA, teamB].forEach(team => {
-                        const teamDiff = team.id === m.teamAId ? (m.scoreA - m.scoreB) : (m.scoreB - m.scoreA);
-                        [team.player1.id, team.player2.id].forEach(pid => {
-                            if (stats[pid]) {
-                                stats[pid].matches++;
-                                stats[pid].totalDiff += teamDiff;
-                                if (team.id === winnerId) stats[pid].wins++;
-                            }
-                        });
-                    });
-                }
-            });
-        });
-        return stats;
-    }, [players, tournaments]);
+    const playerPerformanceStats = useMemo(
+        () => computePlayerPerformanceStats(players, tournaments),
+        [players, tournaments]
+    );
 
     const sortedPlayers = useMemo(() => {
         return [...players].sort((a, b) => {
