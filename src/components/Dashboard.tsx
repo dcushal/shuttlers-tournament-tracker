@@ -4,6 +4,7 @@ import { Play, Trophy, ChevronRight, Lightbulb, Clock, RotateCcw, Crown, Trash2,
 import Logo from './Logo';
 import DashboardHeroCard from './DashboardHeroCard';
 import confetti from 'canvas-confetti';
+import { computeLastTournamentDelta } from '../utils/playerStats';
 
 interface Props {
   activeTournament?: Tournament;
@@ -23,6 +24,7 @@ const Dashboard: React.FC<Props> = ({
   currentPlayer, onNavigate, onResetData, onDeleteHOF, user
 }) => {
   const mvp = React.useMemo(() => [...players].sort((a, b) => b.points - a.points)[0] || null, [players]);
+  const pointsDeltas = React.useMemo(() => computeLastTournamentDelta(players, tournaments), [players, tournaments]);
 
   const topDog = React.useMemo(() => {
     const winCounts: Record<string, number> = {};
@@ -67,7 +69,7 @@ const Dashboard: React.FC<Props> = ({
     <div className="space-y-5 pb-6">
       {/* Member hero card — admins skip this */}
       {user.role === 'member' && currentPlayer && (
-        <DashboardHeroCard player={currentPlayer} tournaments={tournaments} />
+        <DashboardHeroCard player={currentPlayer} tournaments={tournaments} pointsDelta={pointsDeltas[currentPlayer.id]} />
       )}
 
       {/* Club header card — shown to all */}

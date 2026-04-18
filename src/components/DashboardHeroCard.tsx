@@ -9,6 +9,7 @@ gsap.registerPlugin(useGSAP);
 interface Props {
   player: Player;
   tournaments: Tournament[];
+  pointsDelta?: number;
 }
 
 function getLastResult(player: Player, tournaments: Tournament[]): { place: string; date: string } | null {
@@ -43,7 +44,7 @@ function getLastResult(player: Player, tournaments: Tournament[]): { place: stri
   return null;
 }
 
-const DashboardHeroCard: React.FC<Props> = ({ player, tournaments }) => {
+const DashboardHeroCard: React.FC<Props> = ({ player, tournaments, pointsDelta }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const counter = useRef({ rank: 0, pts: 0 });
   const [displayRank, setDisplayRank] = useState(0);
@@ -91,6 +92,15 @@ const DashboardHeroCard: React.FC<Props> = ({ player, tournaments }) => {
           <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1">Your Rank</p>
           <div className="flex items-end gap-3">
             <span className="stat-hero">#{displayRank !== 0 ? displayRank : player.rank}</span>
+            {pointsDelta !== undefined && pointsDelta !== 0 && (
+              <span className={`mb-2 text-[10px] font-black px-2 py-0.5 rounded-full ${
+                pointsDelta > 0
+                  ? 'bg-green-500/15 text-green-400 border border-green-500/25'
+                  : 'bg-red-500/15 text-red-400 border border-red-500/25'
+              }`}>
+                {pointsDelta > 0 ? `+${pointsDelta}` : pointsDelta} pts
+              </span>
+            )}
           </div>
         </div>
 

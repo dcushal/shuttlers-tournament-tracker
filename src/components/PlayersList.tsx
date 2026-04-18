@@ -3,7 +3,7 @@ import { Player, Tournament } from '../types';
 import { Plus, Trash2, UserPlus, Trophy, ChevronDown, Camera, CheckCircle2 } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { computePlayerPerformanceStats } from '../utils/playerStats';
+import { computePlayerPerformanceStats, computeLastTournamentDelta } from '../utils/playerStats';
 
 gsap.registerPlugin(useGSAP);
 
@@ -33,6 +33,7 @@ interface PillProps {
   onToggle: (id: string) => void;
   stats: { form: ('W' | 'L')[]; titles: number };
   perfStats: { wins: number; matches: number; totalDiff: number };
+  pointsDelta?: number;
   user: { role: 'admin' | 'member'; name: string };
   checkedInIds: string[];
   onToggleCheckIn: (id: string) => void;
@@ -42,7 +43,7 @@ interface PillProps {
 }
 
 const PlayerPill: React.FC<PillProps> = ({
-  player, isOpen, onToggle, stats, perfStats,
+  player, isOpen, onToggle, stats, perfStats, pointsDelta,
   user, checkedInIds, onToggleCheckIn, onOpenProfile, onDelete, currentPlayerId
 }) => {
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -178,6 +179,16 @@ const PlayerPill: React.FC<PillProps> = ({
             </div>
           </div>
 
+          {/* Last tournament delta */}
+          {pointsDelta !== undefined && pointsDelta !== 0 && (
+            <div className="flex items-center justify-between mt-2 mb-0.5 px-1 py-1.5 rounded-xl bg-zinc-900/50">
+              <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Last Tournament</p>
+              <span className={`text-[11px] font-black ${pointsDelta > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                {pointsDelta > 0 ? `+${pointsDelta}` : pointsDelta} pts
+              </span>
+            </div>
+          )}
+
           {/* Rank history */}
           <div className="flex items-center gap-2 mt-3 mb-1">
             <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Rank</p>
@@ -280,6 +291,11 @@ const PlayersList: React.FC<Props> = ({
     [players, tournaments]
   );
 
+  const pointsDeltas = useMemo(
+    () => computeLastTournamentDelta(players, tournaments),
+    [players, tournaments]
+  );
+
   const handleToggle = useCallback((id: string) => {
     setOpenPillId(prev => prev === id ? null : id);
   }, []);
@@ -367,6 +383,7 @@ const PlayersList: React.FC<Props> = ({
               onToggle={handleToggle}
               stats={playerStats[player.id] ?? { form: [], titles: 0 }}
               perfStats={perfStats[player.id] ?? { wins: 0, matches: 0, totalDiff: 0 }}
+              pointsDelta={pointsDeltas[player.id]}
               user={user}
               checkedInIds={checkedInIds}
               onToggleCheckIn={onToggleCheckIn}

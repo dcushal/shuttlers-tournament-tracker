@@ -1,4 +1,5 @@
 import { Player, Tournament } from '../types';
+import { recalculatePlayerStats } from './rankingSystem';
 
 export type PerformanceStats = Record<string, { wins: number; matches: number; totalDiff: number }>;
 
@@ -28,4 +29,29 @@ export function computePlayerPerformanceStats(
   });
 
   return stats;
+}
+
+export function computeLastTournamentDelta(
+  players: Player[],
+  tournaments: Tournament[]
+): Record<string, number> {
+  const lastCompleted = [...tournaments]
+    .filter(t => t.status === 'completed')
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+
+  if (!lastCompleted) return {};
+
+  const withoutLast = tournaments.filter(t => t.id !== lastCompleted.id);
+  const after = recalculatePlayerStats(players, tournaments);
+  const before = recalculatePlayerStats(players, withoutLast);
+
+  const beforeMap: Record<string, number> = {};
+  before.forEach(p => { beforeMap[p.id] = p.points; });
+
+  const delta: Record<string, number> = {};
+  after.forEach(p => {
+    const d = p.points - (beforeMap[p.id] ?? p.points);
+    delta[p.id] = Math.round(d * 10) / 10;
+  });
+  return delta;
 }
