@@ -26,6 +26,23 @@ const Dashboard: React.FC<Props> = ({
   const mvp = React.useMemo(() => [...players].sort((a, b) => b.points - a.points)[0] || null, [players]);
   const pointsDeltas = React.useMemo(() => computeLastTournamentDelta(players, tournaments), [players, tournaments]);
 
+  const playerTitles = React.useMemo(() => {
+    const counts: Record<string, number> = {};
+    tournaments.filter(t => t.status === 'completed').forEach(t => {
+      const finalMatch = t.matches.find(m => m.phase === 'finals' && m.isCompleted);
+      if (finalMatch) {
+        const winnerId = finalMatch.scoreA > finalMatch.scoreB ? finalMatch.teamAId : finalMatch.teamBId;
+        const winnerTeam = t.teams.find(tm => tm.id === winnerId);
+        if (winnerTeam) {
+          [winnerTeam.player1.id, winnerTeam.player2.id].forEach(pid => {
+            counts[pid] = (counts[pid] || 0) + 1;
+          });
+        }
+      }
+    });
+    return counts;
+  }, [tournaments]);
+
   const topDog = React.useMemo(() => {
     const winCounts: Record<string, number> = {};
     hallOfFame.forEach(entry => {
@@ -69,7 +86,7 @@ const Dashboard: React.FC<Props> = ({
     <div className="space-y-5 pb-6">
       {/* Member hero card — admins skip this */}
       {user.role === 'member' && currentPlayer && (
-        <DashboardHeroCard player={currentPlayer} tournaments={tournaments} pointsDelta={pointsDeltas[currentPlayer.id]} />
+        <DashboardHeroCard player={currentPlayer} tournaments={tournaments} pointsDelta={pointsDeltas[currentPlayer.id]} titles={playerTitles[currentPlayer.id] ?? 0} />
       )}
 
       {/* Club header card — shown to all */}

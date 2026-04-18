@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef, useCallback } from 'react';
 import { Player, Tournament } from '../types';
-import { Plus, Trash2, UserPlus, Trophy, ChevronDown, Camera, CheckCircle2 } from 'lucide-react';
+import { Plus, Trash2, UserPlus, Trophy, ChevronDown, Camera, CheckCircle2, Star } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { computePlayerPerformanceStats, computeLastTournamentDelta } from '../utils/playerStats';
@@ -177,6 +177,17 @@ const PlayerPill: React.FC<PillProps> = ({
               <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Points</p>
               <p className="text-base font-black text-white">{player.points % 1 === 0 ? player.points : player.points.toFixed(1)}</p>
             </div>
+          </div>
+
+          {/* Tournament wins */}
+          <div className="flex items-center justify-between mt-2 mb-0.5 px-1 py-1.5 rounded-xl bg-yellow-500/6 border border-yellow-500/12">
+            <div className="flex items-center gap-1.5">
+              <Trophy size={11} className="text-yellow-500" />
+              <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Tournament Wins</p>
+            </div>
+            <span className={`text-[11px] font-black ${stats.titles > 0 ? 'text-yellow-400' : 'text-zinc-600'}`}>
+              {stats.titles}
+            </span>
           </div>
 
           {/* Last tournament delta */}

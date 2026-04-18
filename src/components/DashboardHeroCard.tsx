@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { Trophy } from 'lucide-react';
 import { Player, Tournament } from '../types';
 import { computePlayerPerformanceStats } from '../utils/playerStats';
 
@@ -10,6 +11,7 @@ interface Props {
   player: Player;
   tournaments: Tournament[];
   pointsDelta?: number;
+  titles?: number;
 }
 
 function getLastResult(player: Player, tournaments: Tournament[]): { place: string; date: string } | null {
@@ -44,7 +46,7 @@ function getLastResult(player: Player, tournaments: Tournament[]): { place: stri
   return null;
 }
 
-const DashboardHeroCard: React.FC<Props> = ({ player, tournaments, pointsDelta }) => {
+const DashboardHeroCard: React.FC<Props> = ({ player, tournaments, pointsDelta, titles = 0 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const counter = useRef({ rank: 0, pts: 0 });
   const [displayRank, setDisplayRank] = useState(0);
@@ -136,6 +138,15 @@ const DashboardHeroCard: React.FC<Props> = ({ player, tournaments, pointsDelta }
           <p className="text-xl font-black text-white">{perf.matches}</p>
         </div>
       </div>
+
+      {titles > 0 && (
+        <div className="flex items-center gap-2 mt-3 px-1 py-2 rounded-2xl bg-yellow-500/8 border border-yellow-500/15">
+          <Trophy size={13} className="text-yellow-500 flex-shrink-0" />
+          <p className="text-[10px] font-black text-yellow-400">
+            {titles} tournament {titles === 1 ? 'win' : 'wins'}
+          </p>
+        </div>
+      )}
 
       {lastResult && (
         <p className="text-[10px] text-zinc-500 font-bold mt-3">
