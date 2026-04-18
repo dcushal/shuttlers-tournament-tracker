@@ -101,6 +101,10 @@ const PlayerPill: React.FC<PillProps> = ({
         gsap.to(chevron, { rotation: 0, duration: 0.25, ease: 'power2.inOut' });
       }
     }
+    return () => {
+      gsap.killTweensOf(body);
+      if (chevron) gsap.killTweensOf(chevron);
+    };
   }, [isOpen, reduced]);
 
   return (

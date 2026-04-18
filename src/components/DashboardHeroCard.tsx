@@ -90,7 +90,7 @@ const DashboardHeroCard: React.FC<Props> = ({ player, tournaments }) => {
         <div>
           <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-1">Your Rank</p>
           <div className="flex items-end gap-3">
-            <span className="stat-hero">#{displayRank || player.rank}</span>
+            <span className="stat-hero">#{displayRank !== 0 ? displayRank : player.rank}</span>
           </div>
         </div>
 
@@ -113,7 +113,7 @@ const DashboardHeroCard: React.FC<Props> = ({ player, tournaments }) => {
       <div className="flex gap-4 mt-5 pt-4 border-t border-zinc-800/60">
         <div className="flex-1 text-center">
           <p className="text-[9px] font-black uppercase tracking-widest text-zinc-500 mb-0.5">Points</p>
-          <p className="text-xl font-black text-white">{displayPts || Math.round(player.points)}</p>
+          <p className="text-xl font-black text-white">{displayPts !== 0 ? displayPts : Math.round(player.points)}</p>
         </div>
         <div className="w-px bg-zinc-800" />
         <div className="flex-1 text-center">
