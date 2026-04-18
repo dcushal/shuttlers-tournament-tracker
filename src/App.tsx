@@ -13,6 +13,10 @@ import Rankings from './components/Rankings';
 import Login from './components/Login';
 import { Trophy, Users, LayoutDashboard, Crown, Lightbulb } from 'lucide-react';
 import { recalculatePlayerStats } from './utils/rankingSystem';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(useGSAP);
 
 const INITIAL_RANKINGS: { name: string; points: number }[] = [
   { name: "Viru", points: 100 },
@@ -114,6 +118,20 @@ const App: React.FC = () => {
   useEffect(() => { localStorage.setItem('shuttlers_transactions', JSON.stringify(transactions)); }, [transactions]);
   useEffect(() => { localStorage.setItem('shuttlers_hof', JSON.stringify(hallOfFame)); }, [hallOfFame]);
   useEffect(() => { if (user) localStorage.setItem('shuttlers_user', JSON.stringify(user)); }, [user]);
+
+  // Tab transition — fade + slide-up when activeTab changes
+  const prevTabRef = useRef(activeTab);
+  useEffect(() => {
+    if (prevTabRef.current === activeTab) return;
+    prevTabRef.current = activeTab;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const content = document.getElementById('tab-content');
+    if (!content) return;
+    gsap.fromTo(content,
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+    );
+  }, [activeTab]);
 
   const handleLogout = () => {
     localStorage.removeItem('shuttlers_user');
@@ -299,7 +317,18 @@ const App: React.FC = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`liquid-nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-all ${activeTab === tab ? 'active' : ''}`}
+                onPointerDown={e => {
+                  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                  gsap.to(e.currentTarget, { scale: 0.92, duration: 0.1 });
+                }}
+                onPointerUp={e => {
+                  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                  gsap.to(e.currentTarget, { scale: 1, duration: 0.3, ease: 'elastic.out(1, 0.4)' });
+                }}
+                onPointerLeave={e => {
+                  gsap.to(e.currentTarget, { scale: 1, duration: 0.15 });
+                }}
+                className={`liquid-nav-item flex flex-col items-center gap-1.5 py-3 px-4 rounded-2xl transition-colors ${activeTab === tab ? 'active' : ''}`}
               >
                 <Icon size={20} strokeWidth={activeTab === tab ? 2.5 : 1.5} />
                 <span className="text-[8px] font-bold uppercase tracking-widest">{label}</span>
