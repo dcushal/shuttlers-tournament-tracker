@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Player, Tournament, Team, Match, TeamStats } from '../types';
 import { Trophy, Plus, CheckCircle2, ChevronRight, Users, Play, RotateCcw, Swords, Zap, Clock, Share2 } from 'lucide-react';
-import ScrollPicker from './ScrollPicker';
 
 const TOURNAMENT_TITLES = [
   "Smash Fest Prime", "Birdie Blitz", "Court Kings", "Shuttle Showdown",
@@ -207,17 +206,23 @@ const TournamentManager: React.FC<Props> = ({ players, checkedInIds, tournaments
         <div className="space-y-4">
           <div className="flex gap-5 items-center">
             <div className="flex-1 grid grid-cols-2 gap-3">
-              <ScrollPicker
+              <input
+                type="number"
+                min={0}
+                max={30}
                 value={match.scoreA || 0}
-                max={30}
-                onChange={(val) => handleScoreChange(match.id, val, match.scoreB)}
+                onChange={(e) => handleScoreChange(match.id, Math.min(30, Math.max(0, parseInt(e.target.value) || 0)), match.scoreB)}
                 disabled={match.isCompleted || user.role !== 'admin'}
+                className="w-full text-center text-3xl font-black bg-zinc-800 border border-zinc-700 rounded-2xl py-4 text-white focus:border-green-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              <ScrollPicker
-                value={match.scoreB || 0}
+              <input
+                type="number"
+                min={0}
                 max={30}
-                onChange={(val) => handleScoreChange(match.id, match.scoreA, val)}
+                value={match.scoreB || 0}
+                onChange={(e) => handleScoreChange(match.id, match.scoreA, Math.min(30, Math.max(0, parseInt(e.target.value) || 0)))}
                 disabled={match.isCompleted || user.role !== 'admin'}
+                className="w-full text-center text-3xl font-black bg-zinc-800 border border-zinc-700 rounded-2xl py-4 text-white focus:border-green-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
             {user.role === 'admin' && (

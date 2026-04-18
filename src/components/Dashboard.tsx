@@ -16,6 +16,7 @@ interface Props {
   onDeleteHOF: (id: string) => void;
   onDataRefresh?: () => void;
   user: { role: 'admin' | 'member'; name: string };
+  currentPlayer?: Player;
 }
 
 const Dashboard: React.FC<Props> = ({ activeTournament, tournaments, players, transactions, hallOfFame, onNavigate, onResetData, onDeleteHOF, onDataRefresh, user }) => {
