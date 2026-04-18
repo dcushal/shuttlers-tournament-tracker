@@ -135,3 +135,45 @@ body::after {
     animation: light-sweep 4s linear infinite;
     display: inline-block;
 }
+
+/* ---------- New Design Tokens — UI/UX Redesign ---------- */
+
+/* Hero stat number — big animated rank/points on dashboard */
+.stat-hero {
+    font-size: 3.75rem;
+    font-weight: 900;
+    line-height: 1;
+    color: #9ee312;
+    text-shadow: 0 0 24px rgba(158, 227, 18, 0.35);
+    letter-spacing: -0.03em;
+}
+
+/* Rank improvement badge */
+.rank-delta-up {
+    background: rgba(158, 227, 18, 0.15);
+    color: #9ee312;
+    border: 1px solid rgba(158, 227, 18, 0.25);
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 6px;
+    letter-spacing: 0.03em;
+}
+
+/* Rank drop badge */
+.rank-delta-down {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 999px;
+    font-size: 9px;
+    font-weight: 900;
+    padding: 2px 6px;
+    letter-spacing: 0.03em;
+}
+
+/* Expandable pill base — overflow hidden, GSAP handles motion */
+.pill-expand {
+    border-radius: 2rem;
+    overflow: hidden;
+}
