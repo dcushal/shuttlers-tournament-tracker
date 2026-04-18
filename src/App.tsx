@@ -294,6 +294,7 @@ const App: React.FC = () => {
               onToggleCheckIn={handleToggleCheckIn}
               onOpenProfile={(player) => setProfileModalPlayer(player)}
               currentPlayerId={currentPlayer?.id}
+              hallOfFame={hallOfFame}
             />
           )}
           {activeTab === 'insights' && (

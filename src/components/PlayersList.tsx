@@ -258,7 +258,8 @@ const PlayersList: React.FC<Props> = ({
   const playerStats = useMemo(() => {
     const stats: Record<string, { form: ('W' | 'L')[]; titles: number }> = {};
 
-    hallOfFame.forEach(entry => {
+    (hallOfFame ?? []).forEach(entry => {
+      if (!entry?.teamName) return;
       const names = entry.teamName.split(' & ').map(n => n.trim().toLowerCase());
       players.forEach(p => {
         if (names.includes(p.name.toLowerCase())) {
