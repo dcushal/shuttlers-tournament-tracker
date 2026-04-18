@@ -28,20 +28,16 @@ const Dashboard: React.FC<Props> = ({
 
   const playerTitles = React.useMemo(() => {
     const counts: Record<string, number> = {};
-    tournaments.filter(t => t.status === 'completed').forEach(t => {
-      const finalMatch = t.matches.find(m => m.phase === 'finals' && m.isCompleted);
-      if (finalMatch) {
-        const winnerId = finalMatch.scoreA > finalMatch.scoreB ? finalMatch.teamAId : finalMatch.teamBId;
-        const winnerTeam = t.teams.find(tm => tm.id === winnerId);
-        if (winnerTeam) {
-          [winnerTeam.player1.id, winnerTeam.player2.id].forEach(pid => {
-            counts[pid] = (counts[pid] || 0) + 1;
-          });
+    hallOfFame.forEach(entry => {
+      const names = entry.teamName.split(' & ').map(n => n.trim().toLowerCase());
+      players.forEach(p => {
+        if (names.includes(p.name.toLowerCase())) {
+          counts[p.id] = (counts[p.id] || 0) + 1;
         }
-      }
+      });
     });
     return counts;
-  }, [tournaments]);
+  }, [hallOfFame, players]);
 
   const topDog = React.useMemo(() => {
     const winCounts: Record<string, number> = {};

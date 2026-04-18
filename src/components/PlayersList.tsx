@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useCallback } from 'react';
-import { Player, Tournament } from '../types';
+import { Player, Tournament, HallOfFameEntry } from '../types';
 import { Plus, Trash2, UserPlus, Trophy, ChevronDown, Camera, CheckCircle2, Star } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -13,6 +13,7 @@ interface Props {
   addPlayer: (player: Player) => Promise<void>;
   deletePlayer: (playerId: string) => Promise<void>;
   tournaments: Tournament[];
+  hallOfFame: HallOfFameEntry[];
   user: { role: 'admin' | 'member'; name: string };
   checkedInIds: string[];
   onToggleCheckIn: (id: string) => void;
@@ -248,7 +249,7 @@ const PlayerPill: React.FC<PillProps> = ({
 
 const PlayersList: React.FC<Props> = ({
   players, setPlayers, addPlayer: hookAddPlayer, deletePlayer: hookDeletePlayer,
-  tournaments, user, checkedInIds, onToggleCheckIn, onOpenProfile, currentPlayerId
+  tournaments, hallOfFame, user, checkedInIds, onToggleCheckIn, onOpenProfile, currentPlayerId
 }) => {
   const [newPlayerName, setNewPlayerName] = useState('');
   const [newPlayerPoints, setNewPlayerPoints] = useState(10);
@@ -257,18 +258,14 @@ const PlayersList: React.FC<Props> = ({
   const playerStats = useMemo(() => {
     const stats: Record<string, { form: ('W' | 'L')[]; titles: number }> = {};
 
-    tournaments.filter(t => t.status === 'completed').forEach(t => {
-      const finalMatch = t.matches.find(m => m.phase === 'finals' && m.isCompleted);
-      if (finalMatch) {
-        const winnerId = finalMatch.scoreA > finalMatch.scoreB ? finalMatch.teamAId : finalMatch.teamBId;
-        const winnerTeam = t.teams.find(tm => tm.id === winnerId);
-        if (winnerTeam) {
-          [winnerTeam.player1.id, winnerTeam.player2.id].forEach(pid => {
-            if (!stats[pid]) stats[pid] = { form: [], titles: 0 };
-            stats[pid].titles++;
-          });
+    hallOfFame.forEach(entry => {
+      const names = entry.teamName.split(' & ').map(n => n.trim().toLowerCase());
+      players.forEach(p => {
+        if (names.includes(p.name.toLowerCase())) {
+          if (!stats[p.id]) stats[p.id] = { form: [], titles: 0 };
+          stats[p.id].titles++;
         }
-      }
+      });
     });
 
     const sorted = [...tournaments].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -295,7 +292,7 @@ const PlayersList: React.FC<Props> = ({
     });
 
     return stats;
-  }, [players, tournaments]);
+  }, [players, tournaments, hallOfFame]);
 
   const perfStats = useMemo(
     () => computePlayerPerformanceStats(players, tournaments),
